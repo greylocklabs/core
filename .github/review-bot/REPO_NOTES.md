@@ -14,6 +14,7 @@ C++20 on Linux, and Woodshed (Android). Each app includes this repo as a git sub
 | `tooling/*.sh`           | Bash scripts the apps run from their own root, as `core/tooling/<script>`.       |
 | `tooling/commitlint.mjs` | The commit rules; each app calls `config(scopes)`.                               |
 | `tooling/` dotfiles      | Format and lint configs, symlinked into each app's root.                         |
+| `themes/*.toml`          | The built-in themes every app compiles in. `callie.toml` sets every key.         |
 | `scripts/release.sh`     | Releases core itself and moves the `release` branch.                             |
 | `tests/release_test.sh`  | Releases a made-up app to a local bare remote, to exercise `tooling/release.sh`. |
 
