@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    uses: greylocklabs/.github/.github/workflows/commitlint.yml@v1
+
+  markdownlint:
+    uses: greylocklabs/.github/.github/workflows/markdownlint.yml@v1
+
+  tooling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check formatting
+        run: npm run format:check
+      - name: Check the scripts
+        run: shellcheck tooling/*.sh tooling/commit-msg scripts/*.sh tests/*.sh
+      - name: Release a made-up app
+        run: tests/release_test.sh
