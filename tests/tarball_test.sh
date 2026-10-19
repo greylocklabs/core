@@ -51,7 +51,17 @@ for unwanted in demo-1.0.0/notes.md demo-1.0.0/.gitmodules demo-1.0.0/core/tooli
     ! grep -qx "$unwanted" <<<"$files" || fail "$unwanted should be left out"
 done
 
-rm -rf core/themes
+# core checked out ahead of the pin still goes in at the pin.
+echo 'name = "Changed"' >"$core/themes/demo.toml"
+git -C "$core" commit -q -am "feat: change the theme"
+git -C core pull -q
+rm "$tarball"
+"$repo/tooling/source-tarball.sh" 1.0.0 "$tmp" >/dev/null || fail "source-tarball.sh failed with core ahead"
+[ "$(tar -xJOf "$tarball" demo-1.0.0/core/themes/demo.toml)" = 'name = "Demo"' ] ||
+    fail "core went in at its checkout, not at the pin"
+
+rm -rf core
+mkdir core
 if "$repo/tooling/source-tarball.sh" 1.0.0 "$tmp" >/dev/null 2>&1; then
     fail "source-tarball.sh made a tarball without core checked out"
 fi
