@@ -1,0 +1,18 @@
+# An app's release tarball carries core at core/, through tooling/source-tarball.sh, which archives
+# core with these attributes. Only what builds an app goes in: the themes, with the license and
+# README. Paths start with a slash so they match only at the root.
+/tooling                 export-ignore
+/tests                   export-ignore
+/scripts                 export-ignore
+/.github                 export-ignore
+/.githooks               export-ignore
+/package.json            export-ignore
+/package-lock.json       export-ignore
+/commitlint.config.mjs   export-ignore
+/CHANGELOG.md            export-ignore
+/.editorconfig           export-ignore
+/.prettierrc             export-ignore
+/.prettierignore         export-ignore
+/.markdownlint-cli2.yaml export-ignore
+/.gitignore              export-ignore
+/.gitattributes          export-ignore

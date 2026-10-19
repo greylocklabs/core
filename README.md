@@ -5,14 +5,18 @@ The code, themes and tooling that the [Greylock Labs](https://greylocklabs.org) 
 [Woodshed](https://github.com/greylocklabs/woodshed). Each app includes core as a git submodule, so a change made here
 reaches an app only when the app takes a new release of core.
 
-For now core holds the tooling. Themes, the `greylock::` C++ library, the `Greylock.Ui` QML module, the command-line
-helpers and the shared site files move in next, in that order.
+For now core holds the tooling and the themes. The `greylock::` C++ library, the `Greylock.Ui` QML module, the
+command-line helpers and the shared site files move in next, in that order.
 
 ## What is here
 
+- `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
+  Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
 - `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release a Qt app: they date the notes in
   `CHANGELOG.md`, set the version in CMake, the RPM spec, the Debian changelog and the AppStream metainfo, run
   `make check`, then commit, tag and push. They read the app's name and id from its `CMakeLists.txt`.
+- `tooling/source-tarball.sh` writes an app's release tarball with core's buildable files, such as the themes,
+  included at `core/`, since `git archive` leaves submodules out.
 - `tooling/format.sh` formats or checks C++ and QML with clang-format and qmlformat.
 - `tooling/commitlint.mjs` holds the commit rules; an app passes in its own scopes.
 - `tooling/commit-msg` runs commitlint as a git hook.
@@ -41,7 +45,9 @@ Then, from the app's root:
   ```
 
 - Call the scripts from the root, as `core/tooling/release.sh minor`, from the Makefile and CI.
-- Check out submodules in CI, with `submodules: true` on `actions/checkout`.
+- Check out submodules in CI, with `submodules: true` on `actions/checkout`, and build the release tarball with
+  `core/tooling/source-tarball.sh`. Add `/core export-ignore` to the app's `.gitattributes`, so the app's own
+  archive leaves the empty submodule folder out; the script adds core's files back.
 - Add a `gitsubmodule` entry to `.github/dependabot.yml`, so each core release opens a pull request.
 
 The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.txt` with `project(<app>` and
@@ -53,6 +59,7 @@ The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.t
 ```sh
 npm install
 tests/release_test.sh   # releases a made-up app to a local remote
+tests/tarball_test.sh   # builds a made-up app's release tarball
 npm run format:check
 ```
 

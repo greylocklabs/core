@@ -30,3 +30,5 @@ jobs:
         run: shellcheck tooling/*.sh tooling/commit-msg scripts/*.sh tests/*.sh
       - name: Release a made-up app
         run: tests/release_test.sh
+      - name: Build a made-up app's tarball
+        run: tests/tarball_test.sh

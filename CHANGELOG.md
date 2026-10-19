@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- The built-in themes, in `themes/`, from Callie and Jot.
+- `tooling/source-tarball.sh`, which writes an app's release tarball with core's themes included at `core/`.
+
 ## 0.1.0 - 2026-10-19
 
 ### Added
