@@ -32,3 +32,5 @@ jobs:
         run: tests/release_test.sh
       - name: Build a made-up app's tarball
         run: tests/tarball_test.sh
+      - name: Include common.mk in a made-up app
+        run: tests/make_test.sh

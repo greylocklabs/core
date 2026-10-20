@@ -12,6 +12,7 @@ C++20 on Linux, and Woodshed (Android). Each app includes this repo as a git sub
 | Path                     | What it is                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------- |
 | `tooling/*.sh`           | Bash scripts the apps run from their own root, as `core/tooling/<script>`.       |
+| `tooling/common.mk`      | The shared make targets; an app's Makefile sets its values and includes it.      |
 | `tooling/commitlint.mjs` | The commit rules; each app calls `config(scopes)`.                               |
 | `tooling/` dotfiles      | Format and lint configs, symlinked into each app's root.                         |
 | `themes/*.toml`          | The built-in themes every app compiles in. `callie.toml` sets every key.         |

@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `tooling/common.mk`, the everyday make targets every app shares, which an app's `Makefile` includes after setting
+  its own values. It adds a `logs` target that follows the app's log files.
+
 ## 0.2.0 - 2026-10-19
 
 ### Added
