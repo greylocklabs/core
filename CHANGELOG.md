@@ -8,7 +8,9 @@ and `scripts/release.sh` dates them.
 ### Added
 
 - `tooling/common.mk`, the everyday make targets every app shares, which an app's `Makefile` includes after setting
-  its own values. It adds a `logs` target that follows the app's log files.
+  its own values. It adds a `logs` target that follows the app's log files. The app provides the `dev` and `ci`
+  CMake presets, the `format:md` and `format:md:check` npm scripts, and a CLI with `logs --follow`, as the top of
+  `common.mk` lists.
 
 ## 0.2.0 - 2026-10-19
 

@@ -54,6 +54,10 @@ Then, from the app's root:
   archive leaves the empty submodule folder out; the script adds core's files back.
 - Add a `gitsubmodule` entry to `.github/dependabot.yml`, so each core release opens a pull request.
 
+`common.mk` also expects `dev` and `ci` CMake presets, with a `ci` workflow and an `all_qmllint` target, `format:md`
+and `format:md:check` scripts in `package.json`, a GUI and gallery that take `--theme`, `--screenshot` and
+`--live-qml`, and a CLI with `logs --follow`. The top of `common.mk` lists the same.
+
 The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.txt` with `project(<app>` and
 `set(<APP>_APP_ID ...)`, `packaging/rpm/<app>.spec`, `packaging/debian/control` and `changelog`,
 `data/<app id>.metainfo.xml`, and `CHANGELOG.md` with an `## Unreleased` section.
