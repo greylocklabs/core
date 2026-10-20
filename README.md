@@ -17,6 +17,8 @@ command-line helpers and the shared site files move in next, in that order.
   `make check`, then commit, tag and push. They read the app's name and id from its `CMakeLists.txt`.
 - `tooling/source-tarball.sh` writes an app's release tarball with core's buildable files, such as the themes,
   included at `core/`, since `git archive` leaves submodules out.
+- `tooling/common.mk` holds the everyday make targets: `build`, `run`, `logs`, `watch`, `gallery`, `screenshots`,
+  `test`, `lint`, `format`, `check`, `release` and the rest. An app's Makefile sets its own values and includes it.
 - `tooling/format.sh` formats or checks C++ and QML with clang-format and qmlformat.
 - `tooling/commitlint.mjs` holds the commit rules; an app passes in its own scopes.
 - `tooling/commit-msg` runs commitlint as a git hook.
@@ -44,7 +46,9 @@ Then, from the app's root:
   export default config(["core", "gui", "ci", "deps", "deps-dev"]);
   ```
 
-- Call the scripts from the root, as `core/tooling/release.sh minor`, from the Makefile and CI.
+- Write the `Makefile` as the app's own values followed by `include core/tooling/common.mk`; the top of
+  `common.mk` lists the values it reads.
+- Call the scripts from the root, as `core/tooling/release.sh minor`, from CI.
 - Check out submodules in CI, with `submodules: true` on `actions/checkout`, and build the release tarball with
   `core/tooling/source-tarball.sh`. Add `/core export-ignore` to the app's `.gitattributes`, so the app's own
   archive leaves the empty submodule folder out; the script adds core's files back.
@@ -60,6 +64,7 @@ The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.t
 npm install
 tests/release_test.sh   # releases a made-up app to a local remote
 tests/tarball_test.sh   # builds a made-up app's release tarball
+tests/make_test.sh      # includes common.mk in a made-up app
 npm run format:check
 ```
 
