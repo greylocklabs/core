@@ -10,6 +10,14 @@
 #   DEBIAN_DEPS := ...
 #   include core/tooling/common.mk
 #
+# The targets also expect, from the app:
+#
+#   CMakePresets.json with dev and ci presets, ci also a workflow preset, and an all_qmllint target
+#   package.json with format:md and format:md:check scripts
+#   a GUI and a gallery that take --theme, --screenshot and --live-qml
+#   a CLI with a logs command that takes --follow
+#   the release scripts' files, as core's README lists them
+#
 # The CMake presets do the real work; these targets give them short names. Run make to list them.
 
 PRESET ?= dev
