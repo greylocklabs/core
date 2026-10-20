@@ -16,3 +16,6 @@
 /.markdownlint-cli2.yaml export-ignore
 /.gitignore              export-ignore
 /.gitattributes          export-ignore
+/cpp/tests               export-ignore
+/.clang-format           export-ignore
+/.clangd                 export-ignore

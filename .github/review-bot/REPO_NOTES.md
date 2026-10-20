@@ -9,19 +9,20 @@ Shared tooling, and later shared code, for the Greylock Labs apps: Callie (calen
 C++20 on Linux, and Woodshed (Android). Each app includes this repo as a git submodule at `core/`, tracking the
 `release` branch, which moves only when core tags a release.
 
-| Path                     | What it is                                                                       |
-| ------------------------ | -------------------------------------------------------------------------------- |
-| `tooling/*.sh`           | Bash scripts the apps run from their own root, as `core/tooling/<script>`.       |
-| `tooling/common.mk`      | The shared make targets; an app's Makefile sets its values and includes it.      |
-| `tooling/commitlint.mjs` | The commit rules; each app calls `config(scopes)`.                               |
-| `tooling/` dotfiles      | Format and lint configs, symlinked into each app's root.                         |
-| `themes/*.toml`          | The built-in themes every app compiles in. `callie.toml` sets every key.         |
-| `scripts/release.sh`     | Releases core itself and moves the `release` branch.                             |
-| `tests/release_test.sh`  | Releases a made-up app to a local bare remote, to exercise `tooling/release.sh`. |
+| Path                     | What it is                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `tooling/*.sh`           | Bash scripts the apps run from their own root, as `core/tooling/<script>`.             |
+| `tooling/common.mk`      | The shared make targets; an app's Makefile sets its values and includes it.            |
+| `tooling/commitlint.mjs` | The commit rules; each app calls `config(scopes)`.                                     |
+| `tooling/` dotfiles      | Format and lint configs, symlinked into each app's root.                               |
+| `CMakeLists.txt`, `cpp/` | `greylock::core`, the static C++ library the apps link, in the `greylock::` namespace. |
+| `themes/*.toml`          | The built-in themes every app compiles in. `callie.toml` sets every key.               |
+| `scripts/release.sh`     | Releases core itself and moves the `release` branch.                                   |
+| `tests/release_test.sh`  | Releases a made-up app to a local bare remote, to exercise `tooling/release.sh`.       |
 
 ## What to check
 
-- **App neutrality.** Nothing in `tooling/` may name Callie, Jot or Woodshed, or assume one app's files. A script
+- **App neutrality.** Nothing in `tooling/` or `cpp/` may name Callie, Jot or Woodshed, or assume one app's files. A script
   reads what it needs from the app's own files (`CMakeLists.txt`, `packaging/`, `data/`, `CHANGELOG.md`).
 - **Working directory.** The scripts run from the app's root, never from `core/`. Paths to the app's files are
   relative to that root; paths to sibling scripts go through the script's own directory.

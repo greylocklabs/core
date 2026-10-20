@@ -3,6 +3,18 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `greylock::core`, a static Qt 6 library an app adds with `add_subdirectory(core)` and links. It holds the theme
+  engine from Callie and Jot, as `greylock::color`, `greylock::base16`, `greylock::ThemeSpec` and
+  `greylock::ThemeLoader`, and compiles the built-in themes in at `:/greylock/themes/`.
+
+### Changed
+
+- `tooling/format.sh` works in a repository with C++ and no QML, or the other way round.
+
 ## 0.3.0 - 2026-10-20
 
 ### Added

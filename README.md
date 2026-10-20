@@ -5,11 +5,15 @@ The code, themes and tooling that the [Greylock Labs](https://greylocklabs.org) 
 [Woodshed](https://github.com/greylocklabs/woodshed). Each app includes core as a git submodule, so a change made here
 reaches an app only when the app takes a new release of core.
 
-For now core holds the tooling and the themes. The `greylock::` C++ library, the `Greylock.Ui` QML module, the
-command-line helpers and the shared site files move in next, in that order.
+For now core holds the tooling, the themes and the theme engine, the start of the `greylock::core` C++ library. More of
+the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the shared site files move in next.
 
 ## What is here
 
+- `CMakeLists.txt` and `cpp/` build `greylock::core`, a static Qt 6 library in the `greylock::` namespace, with the
+  built-in themes compiled in at `:/greylock/themes/<id>.toml`. It holds the theme engine: `greylock::color`
+  (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`, `greylock::ThemeLoader` and `greylock::base16`. It needs
+  Qt 6.8 or later and toml++.
 - `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
   Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
 - `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release a Qt app: they date the notes in
@@ -35,6 +39,8 @@ git submodule add -b release https://github.com/greylocklabs/core core
 
 Then, from the app's root:
 
+- Add `add_subdirectory(core)` to the top-level `CMakeLists.txt`, after the app's warning flags so they apply to core
+  too, and link the targets that use it to `greylock::core`.
 - Link each config into the root, where the tools look for it, for example
   `ln -s core/tooling/.clang-format .clang-format`, and the hook as
   `ln -s ../core/tooling/commit-msg .githooks/commit-msg`.
@@ -66,6 +72,7 @@ The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.t
 
 ```sh
 npm install
+cmake -S . -B build -G Ninja -DGREYLOCK_WERROR=ON && cmake --build build && ctest --test-dir build
 tests/release_test.sh   # releases a made-up app to a local remote
 tests/tarball_test.sh   # builds a made-up app's release tarball
 tests/make_test.sh      # includes common.mk in a made-up app
