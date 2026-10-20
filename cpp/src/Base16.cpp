@@ -141,12 +141,13 @@ std::optional<QByteArray> toTheme(QByteArrayView yaml, QString *error)
     const auto set = [&lines](const QString &key, const QColor &value) {
         lines << u"%1 = \"%2\""_s.arg(key, value.name());
     };
-    lines << u"# Made from the base16 scheme %1%2. Anything not set here comes from callie.toml."_s
-                 .arg(name.simplified(), scheme.value(u"author"_s).isEmpty()
-                                             ? QString()
-                                             : u" by "_s + scheme.value(u"author"_s).simplified())
-          << QString() << u"[theme]"_s << u"name = "_s + quoted(name)
-          << u"variant = \"%1\""_s.arg(dark ? u"dark"_s : u"light"_s) << QString() << u"[colors]"_s;
+    lines
+        << u"# Made from the base16 scheme %1%2. Anything not set here comes from the default theme, Callie."_s
+               .arg(name.simplified(), scheme.value(u"author"_s).isEmpty()
+                                           ? QString()
+                                           : u" by "_s + scheme.value(u"author"_s).simplified())
+        << QString() << u"[theme]"_s << u"name = "_s + quoted(name)
+        << u"variant = \"%1\""_s.arg(dark ? u"dark"_s : u"light"_s) << QString() << u"[colors]"_s;
     set(u"background"_s, background);
     set(u"surface"_s, surface);
     set(u"surface-alt"_s, surfaceAlt);
@@ -160,7 +161,8 @@ std::optional<QByteArray> toTheme(QByteArrayView yaml, QString *error)
     set(u"danger"_s, danger);
     set(u"edge"_s, dark ? mix(background, black, 0.35) : mix(surfaceAlt, base[3], 0.5));
     set(u"accent-edge"_s, mix(accent, black, 0.3));
-    // Light schemes take Callie Light's stickers and shadow; dark ones keep Callie's.
+    // Light schemes take the built-in light theme's stickers and shadow; dark ones keep the
+    // default's.
     if (!dark) {
         lines << QString() << u"[calendar]"_s << u"lightness = 0.88"_s << u"chroma = 0.07"_s
               << u"ink-lightness = 0.3"_s << u"ink-chroma = 0.07"_s << u"edge-lightness = 0.72"_s
