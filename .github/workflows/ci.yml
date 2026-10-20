@@ -34,3 +34,46 @@ jobs:
         run: tests/tarball_test.sh
       - name: Include common.mk in a made-up app
         run: tests/make_test.sh
+
+  cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: fedora
+            image: fedora:44
+          - name: debian
+            image: debian:trixie
+    name: cpp (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    steps:
+      # git has to exist before checkout, or the action cannot clone.
+      - name: Install build dependencies (Fedora)
+        if: matrix.name == 'fedora'
+        run: >-
+          dnf install -y --setopt=install_weak_deps=False
+          git gcc-c++ cmake ninja-build clang-tools-extra qt6-qtbase-devel qt6-qtdeclarative-devel
+          tomlplusplus-devel
+
+      - name: Install build dependencies (Debian)
+        if: matrix.name == 'debian'
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            git ca-certificates build-essential cmake ninja-build clang-format qt6-base-dev \
+            qt6-declarative-dev-tools libtomlplusplus-dev
+
+      - uses: actions/checkout@v7
+
+      - name: Check C++ formatting
+        if: matrix.name == 'fedora'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          tooling/format.sh check
+
+      - name: Build with warnings as errors, and test
+        run: |
+          cmake -S . -B build -G Ninja -DGREYLOCK_WERROR=ON
+          cmake --build build
+          ctest --test-dir build --output-on-failure
