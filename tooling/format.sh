@@ -31,14 +31,19 @@ status=0
 # substitution would hide it and leave the lists empty.
 cxx_list="$(git ls-files --cached --others --exclude-standard '*.cpp' '*.h')"
 qml_list="$(git ls-files --cached --others --exclude-standard '*.qml')"
-mapfile -t cxx <<<"$cxx_list"
-mapfile -t qml <<<"$qml_list"
-if [ -z "$cxx_list" ] || [ -z "$qml_list" ]; then
+if [ -z "$cxx_list" ] && [ -z "$qml_list" ]; then
     echo "format: git ls-files found no sources" >&2
     exit 1
 fi
+# A repository may have no QML yet, as core does; an empty list must not become one empty name.
+cxx=()
+qml=()
+[ -z "$cxx_list" ] || mapfile -t cxx <<<"$cxx_list"
+[ -z "$qml_list" ] || mapfile -t qml <<<"$qml_list"
 
-if ! command -v clang-format >/dev/null; then
+if [ "${#cxx[@]}" -eq 0 ]; then
+    :
+elif ! command -v clang-format >/dev/null; then
     echo "format: clang-format not found, skipping C++" >&2
     [ "$mode" = check ] && status=1
 elif [ "$mode" = fix ]; then
@@ -47,7 +52,9 @@ else
     clang-format --dry-run -Werror "${cxx[@]}" || status=1
 fi
 
-if [ ! -x "$qmlformat_bin" ]; then
+if [ "${#qml[@]}" -eq 0 ]; then
+    :
+elif [ ! -x "$qmlformat_bin" ]; then
     echo "format: qmlformat not found, skipping QML" >&2
     [ "$mode" = check ] && status=1
 elif [ "$mode" = fix ]; then
