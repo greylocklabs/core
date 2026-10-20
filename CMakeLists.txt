@@ -34,6 +34,8 @@ add_library(greylock_core STATIC
     cpp/include/greylock/ThemeSpec.h
 )
 add_library(greylock::core ALIAS greylock_core)
+# Required here too, so it holds when an app adds core before setting the standard.
+target_compile_features(greylock_core PUBLIC cxx_std_20)
 target_include_directories(greylock_core PUBLIC cpp/include)
 target_link_libraries(greylock_core
     PUBLIC

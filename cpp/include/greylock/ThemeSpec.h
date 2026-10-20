@@ -5,8 +5,8 @@
 
 namespace greylock {
 
-/// Every value a theme can set. Spacing, type sizes and grid metrics are product
-/// decisions and deliberately absent; see DESIGN.md.
+/// Every value a theme can set. Spacing, type sizes and grid metrics are absent on
+/// purpose: each app sets them in its own theme controller.
 struct ThemeSpec
 {
     struct Colors

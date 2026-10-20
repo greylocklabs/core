@@ -17,6 +17,9 @@ namespace greylock {
 namespace {
 
 const QString kBuiltInDir = QStringLiteral(":/greylock/themes");
+// The default theme, which every other inherits what it leaves out from. Callie is the suite's
+// default theme in every app, so its id stays in settings and theme files.
+const QString kDefaultId = QStringLiteral("callie");
 
 using Setter =
     std::function<void(ThemeSpec &, const toml::node &, const QString &key, QStringList &errors)>;
@@ -264,7 +267,7 @@ QStringList ThemeLoader::builtInIds()
 const ThemeSpec &ThemeLoader::defaultTheme()
 {
     static const ThemeSpec theme =
-        readFile(kBuiltInDir + QStringLiteral("/callie.toml"), ThemeSpec{}).theme;
+        readFile(kBuiltInDir + u'/' + kDefaultId + QStringLiteral(".toml"), ThemeSpec{}).theme;
     return theme;
 }
 

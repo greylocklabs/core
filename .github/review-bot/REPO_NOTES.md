@@ -22,7 +22,9 @@ C++20 on Linux, and Woodshed (Android). Each app includes this repo as a git sub
 
 ## What to check
 
-- **App neutrality.** Nothing in `tooling/` or `cpp/` may name Callie, Jot or Woodshed, or assume one app's files. A script
+- **App neutrality.** Nothing in `tooling/` or `cpp/` may name Callie, Jot or Woodshed, or assume one app's files. The
+  exception is the themes: Callie and Callie Light are the suite's built-in theme names in every app, and `callie` is
+  the default theme's id, so they may appear as theme data. A script
   reads what it needs from the app's own files (`CMakeLists.txt`, `packaging/`, `data/`, `CHANGELOG.md`).
 - **Working directory.** The scripts run from the app's root, never from `core/`. Paths to the app's files are
   relative to that root; paths to sibling scripts go through the script's own directory.

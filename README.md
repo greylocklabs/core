@@ -13,7 +13,8 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
 - `CMakeLists.txt` and `cpp/` build `greylock::core`, a static Qt 6 library in the `greylock::` namespace, with the
   built-in themes compiled in at `:/greylock/themes/<id>.toml`. It holds the theme engine: `greylock::color`
   (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`, `greylock::ThemeLoader` and `greylock::base16`. It needs
-  Qt 6.8 or later and toml++.
+  Qt 6.8 or later and toml++. Callie and Callie Light are the suite's built-in theme names in every app, and `callie`
+  is the default theme every other inherits from.
 - `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
   Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
 - `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release a Qt app: they date the notes in
