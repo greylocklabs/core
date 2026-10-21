@@ -11,10 +11,15 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
 ## What is here
 
 - `CMakeLists.txt` and `cpp/` build `greylock::core`, a static Qt 6 library in the `greylock::` namespace, with the
-  built-in themes compiled in at `:/greylock/themes/<id>.toml`. It holds the theme engine: `greylock::color`
-  (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`, `greylock::ThemeLoader` and `greylock::base16`. It needs
-  Qt 6.8 or later and toml++. Callie and Callie Light are the suite's built-in theme names in every app, and `callie`
-  is the default theme every other inherits from.
+  built-in themes compiled in at `:/greylock/themes/<id>.toml`. It needs Qt 6.8 or later and toml++. It holds:
+  - `greylock::App` and `greylock::identity`: the app's name, id and folders.
+  - The theme engine: `greylock::color` (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`,
+    `greylock::ThemeLoader` and `greylock::base16`.
+  - `greylock::ThemeLibrary`: the user's own theme files.
+
+  Callie and Callie Light are the suite's built-in theme names in every app, and `callie` is the default theme every
+  other inherits from.
+
 - `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
   Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
 - `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release a Qt app: they date the notes in
@@ -40,8 +45,18 @@ git submodule add -b release https://github.com/greylocklabs/core core
 
 Then, from the app's root:
 
-- Add `add_subdirectory(core)` to the top-level `CMakeLists.txt`, after the app's warning flags so they apply to core
-  too, and link the targets that use it to `greylock::core`.
+- Add core to the top-level `CMakeLists.txt`, after the app's warning flags so they apply to core too, saying which
+  app it is built for, and link the targets that use it to `greylock::core`:
+
+  ```cmake
+  set(GREYLOCK_APP_ID "org.example.Demo")   # the release build's id; a development build adds .Devel
+  set(GREYLOCK_APP_NAME "Demo")
+  set(GREYLOCK_APP_DIR "demo")              # the folder under each XDG directory
+  set(GREYLOCK_APP_ENV "DEMO")              # the prefix of environment overrides, such as DEMO_FLATPAK
+  set(GREYLOCK_APP_DEVEL OFF)               # a development build, with its own identity
+  add_subdirectory(core)
+  ```
+
 - Link each config into the root, where the tools look for it, for example
   `ln -s core/tooling/.clang-format .clang-format`, and the hook as
   `ln -s ../core/tooling/commit-msg .githooks/commit-msg`.

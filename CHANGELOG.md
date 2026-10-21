@@ -3,6 +3,16 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `greylock::App`, the app core is built for, from `GREYLOCK_APP_ID`, `_NAME`, `_DIR`, `_ENV` and `_DEVEL`, which an
+  app sets before `add_subdirectory(core)`. Core on its own is built for a made-up Demo app.
+- `greylock::identity`, from Callie and Jot, which gives a development build its own id, folders and name, and tells
+  when the app runs in a Flatpak (`<env>_FLATPAK` overrides it).
+- `greylock::ThemeLibrary`, the user's own theme files, from Callie and Jot.
+
 ## 0.4.0 - 2026-10-20
 
 ### Added

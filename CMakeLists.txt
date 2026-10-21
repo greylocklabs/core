@@ -24,19 +24,47 @@ endif()
 find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui)
 find_package(tomlplusplus REQUIRED)
 
+# The app core is built into, set by the app before add_subdirectory(core). On its own,
+# core is built for a made-up Demo app, as its tests expect.
+if(PROJECT_IS_TOP_LEVEL AND NOT DEFINED GREYLOCK_APP_ID)
+    set(GREYLOCK_APP_ID "org.example.Demo")
+    set(GREYLOCK_APP_NAME "Demo")
+    set(GREYLOCK_APP_DIR "demo")
+    set(GREYLOCK_APP_ENV "DEMO")
+    set(GREYLOCK_APP_DEVEL OFF)
+endif()
+foreach(value GREYLOCK_APP_ID GREYLOCK_APP_NAME GREYLOCK_APP_DIR GREYLOCK_APP_ENV)
+    if("${${value}}" STREQUAL "")
+        message(FATAL_ERROR "${value} is not set; an app sets GREYLOCK_APP_ID, _NAME, _DIR and _ENV before add_subdirectory(core)")
+    endif()
+endforeach()
+
 add_library(greylock_core STATIC
+    cpp/include/greylock/App.h
+    cpp/src/App.cpp
     cpp/include/greylock/Base16.h
     cpp/src/Base16.cpp
     cpp/include/greylock/Color.h
     cpp/src/Color.cpp
+    cpp/include/greylock/Identity.h
+    cpp/src/Identity.cpp
     cpp/include/greylock/ThemeLoader.h
     cpp/src/ThemeLoader.cpp
+    cpp/include/greylock/ThemeLibrary.h
+    cpp/src/ThemeLibrary.cpp
     cpp/include/greylock/ThemeSpec.h
 )
 add_library(greylock::core ALIAS greylock_core)
 # Required here too, so it holds when an app adds core before setting the standard.
 target_compile_features(greylock_core PUBLIC cxx_std_20)
 target_include_directories(greylock_core PUBLIC cpp/include)
+target_compile_definitions(greylock_core PRIVATE
+    GREYLOCK_APP_ID="${GREYLOCK_APP_ID}"
+    GREYLOCK_APP_NAME="${GREYLOCK_APP_NAME}"
+    GREYLOCK_APP_DIR="${GREYLOCK_APP_DIR}"
+    GREYLOCK_APP_ENV="${GREYLOCK_APP_ENV}"
+    GREYLOCK_APP_DEVEL=$<BOOL:${GREYLOCK_APP_DEVEL}>
+)
 target_link_libraries(greylock_core
     PUBLIC
         Qt6::Core
