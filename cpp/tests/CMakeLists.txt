@@ -9,3 +9,5 @@ endfunction()
 
 greylock_add_test(tst_color)
 greylock_add_test(tst_theme)
+greylock_add_test(tst_identity)
+greylock_add_test(tst_themelibrary)
