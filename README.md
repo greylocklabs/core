@@ -11,11 +11,15 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
 ## What is here
 
 - `CMakeLists.txt` and `cpp/` build `greylock::core`, a static Qt 6 library in the `greylock::` namespace, with the
-  built-in themes compiled in at `:/greylock/themes/<id>.toml`. It needs Qt 6.8 or later and toml++. It holds:
+  built-in themes compiled in at `:/greylock/themes/<id>.toml`. It needs Qt 6.8 or later, with Qt Network, and toml++.
+  It holds:
   - `greylock::App` and `greylock::identity`: the app's name, id and folders.
   - The theme engine: `greylock::color` (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`,
     `greylock::ThemeLoader` and `greylock::base16`.
   - `greylock::ThemeLibrary`: the user's own theme files.
+  - Releases: `greylock::ReleaseNotes` reads the app's built-in changelog, `greylock::releases` and
+    `greylock::PackageSystem` read GitHub's releases and pick this system's package, and `greylock::UpdateCheck` asks
+    GitHub for the latest release at most once a day.
 
   Callie and Callie Light are the suite's built-in theme names in every app, and `callie` is the default theme every
   other inherits from.
@@ -49,11 +53,13 @@ Then, from the app's root:
   app it is built for, and link the targets that use it to `greylock::core`:
 
   ```cmake
-  set(GREYLOCK_APP_ID "org.example.Demo")   # the release build's id; a development build adds .Devel
+  set(GREYLOCK_APP_ID "org.example.Demo")    # the release build's id; a development build adds .Devel
   set(GREYLOCK_APP_NAME "Demo")
-  set(GREYLOCK_APP_DIR "demo")              # the folder under each XDG directory
-  set(GREYLOCK_APP_ENV "DEMO")              # the prefix of environment overrides, such as DEMO_FLATPAK
-  set(GREYLOCK_APP_DEVEL OFF)               # a development build, with its own identity
+  set(GREYLOCK_APP_DIR "demo")               # the folder under each XDG directory, the package and the resource prefix
+  set(GREYLOCK_APP_ENV "DEMO")               # the prefix of environment overrides, such as DEMO_FLATPAK
+  set(GREYLOCK_APP_REPO "greylocklabs/demo") # the GitHub repository releases are published to
+  set(GREYLOCK_APP_UBUNTU_DEBS OFF)          # Ubuntu takes demo-ubuntu_*.deb, built apart from Debian's demo_*.deb
+  set(GREYLOCK_APP_DEVEL OFF)                # a development build, with its own identity
   add_subdirectory(core)
   ```
 

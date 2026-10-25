@@ -3,6 +3,20 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- Release checks from Callie and Jot: `greylock::ReleaseNotes`, `greylock::releases`, `greylock::PackageSystem` and
+  `greylock::UpdateCheck`. They read the changelog at `:/<dir>/CHANGELOG.md`, log as `<dir>.update`, and honor
+  `<env>_NO_UPDATE_CHECK`.
+- `GREYLOCK_APP_REPO`, which an app now has to set, and `GREYLOCK_APP_UBUNTU_DEBS`, for an app that builds debs for
+  Ubuntu apart from Debian's.
+
+### Changed
+
+- `greylock::core` links Qt Network.
+
 ## 0.5.0 - 2026-10-20
 
 ### Added
