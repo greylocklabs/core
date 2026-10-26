@@ -7,21 +7,37 @@
 #   core/tooling/release.sh patch|minor|major [--dry-run]
 #   core/tooling/release.sh 0.5.0 [--dry-run]
 #
+# It releases two kinds of app. A Qt app names its version in CMakeLists.txt,
+# the RPM spec, the Debian changelog and the AppStream metainfo. An Android app
+# keeps it in a VERSION file, which its Gradle build reads.
+#
 # Notes come from a "## Unreleased" section at the top of CHANGELOG.md, written
 # as changes land. Without one, git cliff drafts the section and $EDITOR opens
-# it to be written up. RELEASE_YES=1 skips the last question.
+# it to be written up. RELEASE_YES=1 skips the last question, and RELEASE_SCOPE
+# gives the release commit a scope, for an app whose commits need one.
 set -euo pipefail
 
 # Run from the app's root, where make and CI run it; core sits in core/ beside the app's files.
 root="$PWD"
-[ -f "$root/CMakeLists.txt" ] || { echo "$(basename "$0"): run this from the app's root" >&2; exit 1; }
 tools="$(cd "$(dirname "$0")" && pwd)"
 cd "$root"
-app="$(sed -n 's/^project(\([a-z0-9-]*\).*/\1/p' CMakeLists.txt | head -1)"
-app_id="$(sed -n 's/^set([A-Z_]*_APP_ID "\([^"]*\)".*/\1/p' CMakeLists.txt | head -1)"
+if [ -f CMakeLists.txt ]; then
+    kind=qt
+    app="$(sed -n 's/^project(\([a-z0-9-]*\).*/\1/p' CMakeLists.txt | head -1)"
+    app_id="$(sed -n 's/^set([A-Z_]*_APP_ID "\([^"]*\)".*/\1/p' CMakeLists.txt | head -1)"
+    spec="packaging/rpm/$app.spec"
+    metainfo="data/$app_id.metainfo.xml"
+    files=(CHANGELOG.md CMakeLists.txt "$spec" packaging/debian/changelog "$metainfo")
+elif [ -f VERSION ] && [ -f settings.gradle.kts ]; then
+    kind=android
+    app="$(sed -n 's/^rootProject.name *= *"\([^"]*\)".*/\1/p' settings.gradle.kts | head -1)"
+    app="${app,,}"
+    files=(CHANGELOG.md VERSION)
+else
+    echo "$(basename "$0"): run this from the app's root, beside its CMakeLists.txt or VERSION" >&2
+    exit 1
+fi
 name="${app^}"
-spec="packaging/rpm/$app.spec"
-metainfo="data/$app_id.metainfo.xml"
 
 level=""
 dry=0
@@ -49,7 +65,11 @@ git fetch --quiet origin main
 [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] ||
     fail "main is not the same as origin/main; pull or push first"
 
-current="$(sed -n 's/^ *VERSION \([0-9][0-9.]*\)$/\1/p' CMakeLists.txt | head -1)"
+if [ "$kind" = qt ]; then
+    current="$(sed -n 's/^ *VERSION \([0-9][0-9.]*\)$/\1/p' CMakeLists.txt | head -1)"
+else
+    current="$(tr -d '[:space:]' <VERSION)"
+fi
 IFS=. read -r major minor patch <<<"$current"
 case "$level" in
 major) next="$((major + 1)).0.0" ;;
@@ -60,6 +80,12 @@ patch) next="$major.$minor.$((patch + 1))" ;;
 esac
 [ "$next" != "$current" ] || fail "$current is the version already"
 ! git rev-parse -q --verify "refs/tags/v$next" >/dev/null || fail "v$next is tagged already"
+if [ "$kind" = android ]; then
+    # Play's version code is major * 10000 + minor * 100 + patch.
+    IFS=. read -r _ next_minor next_patch <<<"$next"
+    [ "$next_minor" -lt 100 ] && [ "$next_patch" -lt 100 ] || fail "$next needs a minor and patch below 100"
+fi
+message="chore${RELEASE_SCOPE:+($RELEASE_SCOPE)}: release $next"
 
 today="$(date +%F)"
 echo "$name $current to $next, dated $today"
@@ -86,9 +112,14 @@ if [ "$dry" = 1 ]; then
     fi
     printf '%s\n' "$notes"
     echo
-    echo "Would set $next in CMakeLists.txt, the RPM spec, the Debian changelog and the"
-    echo "metainfo, run make check, commit \"chore: release $next\", tag v$next and push both"
-    echo "to origin."
+    if [ "$kind" = qt ]; then
+        echo "Would set $next in CMakeLists.txt, the RPM spec, the Debian changelog and the"
+        echo "metainfo, run make check, commit \"$message\", tag v$next and push both"
+        echo "to origin."
+    else
+        echo "Would set $next in VERSION, run make check, commit \"$message\", tag v$next"
+        echo "and push both to origin."
+    fi
     exit 0
 fi
 
@@ -112,50 +143,58 @@ else
 fi
 notes="$("$tools/release-notes.sh" "$next")"
 
-# The maintainer as the Debian packaging names them.
-maintainer="$(sed -n 's/^Maintainer: *//p' packaging/debian/control)"
-[ -n "$maintainer" ] || fail "packaging/debian/control names no Maintainer"
+stamp_qt() {
+    # The maintainer as the Debian packaging names them.
+    maintainer="$(sed -n 's/^Maintainer: *//p' packaging/debian/control)"
+    [ -n "$maintainer" ] || fail "packaging/debian/control names no Maintainer"
 
-sed -i "s/^\( *VERSION \)$current\$/\1$next/" CMakeLists.txt
-sed -i "s/^\(Version: *\)$current\$/\1$next/" "$spec"
-spec_entry="* $(LC_ALL=C date '+%a %b %d %Y') $maintainer - $next-1\n- Update to $next\n"
-sed -i "s/^%changelog\$/%changelog\n$spec_entry/" "$spec"
-{
-    printf '%s (%s-1) unstable; urgency=medium\n\n  * New upstream release.\n\n' "$app" "$next"
-    printf ' -- %s  %s\n\n' "$maintainer" "$(LC_ALL=C date -R)"
-    cat packaging/debian/changelog
-} >packaging/debian/changelog.new
-mv packaging/debian/changelog.new packaging/debian/changelog
+    sed -i "s/^\( *VERSION \)$current\$/\1$next/" CMakeLists.txt
+    sed -i "s/^\(Version: *\)$current\$/\1$next/" "$spec"
+    spec_entry="* $(LC_ALL=C date '+%a %b %d %Y') $maintainer - $next-1\n- Update to $next\n"
+    sed -i "s/^%changelog\$/%changelog\n$spec_entry/" "$spec"
+    {
+        printf '%s (%s-1) unstable; urgency=medium\n\n  * New upstream release.\n\n' "$app" "$next"
+        printf ' -- %s  %s\n\n' "$maintainer" "$(LC_ALL=C date -R)"
+        cat packaging/debian/changelog
+    } >packaging/debian/changelog.new
+    mv packaging/debian/changelog.new packaging/debian/changelog
 
-# Software centers show each release's first-level notes as a list.
-items="$(printf '%s\n' "$notes" | awk '
-    function flush() { if (item != "") print item; item = "" }
-    /^- / { flush(); item = substr($0, 3); next }
-    /^  [^ -]/ && item != "" { sub(/^ +/, ""); item = item " " $0; next }
-    { flush() }
-    END { flush() }' |
-    sed -e 's/`//g' -e 's/\[\([^]]*\)\]([^)]*)/\1/g' \
-        -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' \
-        -e 's|.*|          <li>&</li>|')"
-release="    <release version=\"$next\" date=\"$today\">
+    # Software centers show each release's first-level notes as a list.
+    items="$(printf '%s\n' "$notes" | awk '
+        function flush() { if (item != "") print item; item = "" }
+        /^- / { flush(); item = substr($0, 3); next }
+        /^  [^ -]/ && item != "" { sub(/^ +/, ""); item = item " " $0; next }
+        { flush() }
+        END { flush() }' |
+        sed -e 's/`//g' -e 's/\[\([^]]*\)\]([^)]*)/\1/g' \
+            -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' \
+            -e 's|.*|          <li>&</li>|')"
+    release="    <release version=\"$next\" date=\"$today\">
       <description>
         <ul>
 $items
         </ul>
       </description>
     </release>"
-# The first release also opens the list, as an empty one does not validate.
-grep -q '<releases>' "$metainfo" || release="  <releases>
+    # The first release also opens the list, as an empty one does not validate.
+    grep -q '<releases>' "$metainfo" || release="  <releases>
 $release
   </releases>"
-awk -v release="$release" '!done && /<release version=|<\/component>/ { print release; done = 1 } { print }' \
-    "$metainfo" >metainfo.new
-mv metainfo.new "$metainfo"
+    awk -v release="$release" '!done && /<release version=|<\/component>/ { print release; done = 1 } { print }' \
+        "$metainfo" >metainfo.new
+    mv metainfo.new "$metainfo"
+}
+
+if [ "$kind" = qt ]; then
+    stamp_qt
+else
+    printf '%s\n' "$next" >VERSION
+fi
 
 # The tests read the dated notes, so they run on the release as it will be tagged.
 if ! make check; then
     sed -i "s/^## $next - $today\$/## Unreleased/" CHANGELOG.md
-    git checkout -- CMakeLists.txt "$spec" packaging/debian/changelog "$metainfo"
+    git checkout -- "${files[@]:1}"
     [ "$drafted" = 0 ] || fail "make check failed on $next; the notes written up are left under" \
         "## Unreleased, to commit and push before releasing again"
     fail "make check failed on $next; the notes are left under ## Unreleased"
@@ -174,11 +213,17 @@ if [ "${RELEASE_YES:-0}" != 1 ]; then
         ;;
     esac
 fi
-git add CHANGELOG.md CMakeLists.txt "$spec" packaging/debian/changelog \
-    "$metainfo"
-git commit --quiet -m "chore: release $next"
+start="$(git rev-parse HEAD)"
+git add "${files[@]}"
+git commit --quiet -m "$message"
 # Annotated, as --follow-tags pushes only annotated tags; atomic, so a refused
 # main leaves no tag behind to start a release.
 git tag -a "v$next" -m "$name $next"
-git push --atomic --follow-tags origin main
+if ! git push --atomic --follow-tags origin main; then
+    # Nothing reached origin, so the commit and tag are undone here too, and the
+    # release can be run again once the problem is fixed.
+    git tag -d "v$next" >/dev/null
+    git reset --quiet --hard "$start"
+    fail "the push was refused, so the release commit and tag were undone; fix that and run it again"
+fi
 echo "Released v$next; the release workflow builds and publishes it."

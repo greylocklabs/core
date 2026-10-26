@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Includes core/tooling/common.mk from a made-up app's Makefile and checks, with make -n, that the
-# targets pick up the app's own values. Nothing is built.
+# Includes core/tooling/common.mk from a made-up app's Makefile, and release.mk alone from another's,
+# and checks, with make -n, that the targets pick up the app's own values. Nothing is built.
 #
 #   tests/make_test.sh
 set -euo pipefail
@@ -52,6 +52,14 @@ expect screenshots "app-\$theme.png"
 expect deps "demo-fedora-deps"
 expect release "core/tooling/release.sh"
 [ "$(make -n release minor 2>&1 | grep -c 'release.sh minor')" -ge 1 ] || fail "make release minor does not pass the level"
+
+# An app without common.mk, as an Android one, takes the release targets alone, with its commit scope.
+mkdir -p "$tmp/android/core"
+ln -s "$tooling" "$tmp/android/core/tooling"
+printf 'RELEASE_SCOPE := release\ninclude core/tooling/release.mk\n' >"$tmp/android/Makefile"
+out="$(make -C "$tmp/android" -n release-dry patch 2>&1)" || fail "make -n release-dry failed alone: $out"
+[[ $out == *"RELEASE_SCOPE=release core/tooling/release.sh patch --dry-run"* ]] ||
+    fail "release.mk alone does not pass the scope and level: $out"
 
 if [ "$failures" -gt 0 ]; then
     echo "$failures check(s) failed"

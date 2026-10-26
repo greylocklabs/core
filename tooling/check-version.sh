@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Checks that every place naming the version agrees: CMake, the RPM spec, the
-# Debian changelog, the AppStream metainfo and CHANGELOG.md, whose release
-# date the metainfo must also carry. With an argument, such as a tag's
-# version, they must also match it. Before the first release, when neither
-# CHANGELOG.md nor the metainfo has one yet, only CMake and the packaging are compared.
+# Checks that every place naming the version agrees. For a Qt app: CMake, the
+# RPM spec, the Debian changelog, the AppStream metainfo and CHANGELOG.md,
+# whose release date the metainfo must also carry. Before the first release,
+# when neither CHANGELOG.md nor the metainfo has one yet, only CMake and the
+# packaging are compared. For an Android app: VERSION and the newest version
+# in CHANGELOG.md, and VERSION must fit Play's version code. With an argument,
+# such as a tag's version, they must also match it.
 #
 #   core/tooling/check-version.sh          # agree with each other
 #   core/tooling/check-version.sh 0.1.0    # and with 0.1.0
@@ -11,6 +13,25 @@ set -euo pipefail
 
 # Run from the app's root, where make and CI run it; core sits in core/ beside the app's files.
 root="$PWD"
+if [ ! -f "$root/CMakeLists.txt" ] && [ -f "$root/VERSION" ]; then
+    version="$(tr -d '[:space:]' <"$root/VERSION")"
+    changelog="$(sed -n 's/^## \([0-9][0-9.]*\)\( - .*\)\?$/\1/p' "$root/CHANGELOG.md" | head -1)"
+    want="${1:-$version}"
+    status=0
+    for pair in "VERSION:$version" "CHANGELOG.md:$changelog"; do
+        if [ "${pair#*:}" != "$want" ]; then
+            echo "check-version.sh: ${pair%%:*} says ${pair#*:}, expected $want" >&2
+            status=1
+        fi
+    done
+    # Play's version code is major * 10000 + minor * 100 + patch.
+    IFS=. read -r _ minor patch <<<"$version"
+    if [ "${minor:-0}" -ge 100 ] || [ "${patch:-0}" -ge 100 ]; then
+        echo "check-version.sh: VERSION $version needs a minor and patch below 100" >&2
+        status=1
+    fi
+    exit "$status"
+fi
 [ -f "$root/CMakeLists.txt" ] || { echo "$(basename "$0"): run this from the app's root" >&2; exit 1; }
 app="$(sed -n 's/^project(\([a-z0-9-]*\).*/\1/p' "$root/CMakeLists.txt" | head -1)"
 app_id="$(sed -n 's/^set([A-Z_]*_APP_ID "\([^"]*\)".*/\1/p' "$root/CMakeLists.txt" | head -1)"
