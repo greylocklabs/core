@@ -14,7 +14,8 @@ and `scripts/release.sh` dates them.
 
 ### Changed
 
-- A release whose push is refused undoes its commit and tag, so it can be run again.
+- A release whose push is refused undoes its commit and tag, so it can be run again, and leaves any notes written up
+  during it under `## Unreleased`.
 
 ## 0.6.0 - 2026-10-25
 

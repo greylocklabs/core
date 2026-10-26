@@ -172,10 +172,32 @@ if out="$(CHECK_OK=1 RELEASE_YES=1 RELEASE_SCOPE=release core/tooling/release.sh
     fail "a release went out although origin refused the push"
 fi
 [[ $out == *"the push was refused"* ]] || fail "a refused push is not explained: $out"
-rm "$tmp/pocket.git/hooks/pre-receive"
 [ "$(git log -1 --format=%s)" = "feat(app): start" ] || fail "a refused push left the release commit"
 [ -z "$(git tag -l v0.6.1)" ] || fail "a refused push left the tag"
 [ -z "$(git status --porcelain)" ] || fail "a refused push left changes: $(git status --porcelain)"
+
+# Notes written up during a release survive a refused push, left under ## Unreleased.
+mkdir -p "$tmp/bin"
+printf '#!/bin/sh\nprintf "### Fixed\\n\\n- A drafted fix.\\n"\n' >"$tmp/bin/git-cliff"
+chmod +x "$tmp/bin/git-cliff"
+mv "$tmp/pocket.git/hooks/pre-receive" "$tmp/refuse"
+sed -i '/^## Unreleased$/,/^## 0.6.0$/{/^## 0.6.0$/!d}' CHANGELOG.md
+git commit -q -am "docs(app): no unreleased notes"
+git push -q origin main
+mv "$tmp/refuse" "$tmp/pocket.git/hooks/pre-receive"
+if out="$(PATH="$tmp/bin:$PATH" EDITOR=true CHECK_OK=1 RELEASE_YES=1 RELEASE_SCOPE=release \
+    core/tooling/release.sh patch 2>&1)"; then
+    fail "a drafted release went out although origin refused the push"
+fi
+[[ $out == *"notes written up are left"* ]] || fail "a refused drafted release does not say where its notes are: $out"
+if ! grep -qx "## Unreleased" CHANGELOG.md || ! grep -qx -- "- A drafted fix." CHANGELOG.md; then
+    fail "a refused push lost the notes written up"
+fi
+[ "$(git status --porcelain)" = " M CHANGELOG.md" ] || fail "a refused drafted release left more than its notes: $(git status --porcelain)"
+rm "$tmp/pocket.git/hooks/pre-receive"
+git checkout -q -- CHANGELOG.md
+git revert --no-edit HEAD >/dev/null
+git push -q origin main
 
 CHECK_OK=1 RELEASE_YES=1 RELEASE_SCOPE=release core/tooling/release.sh patch >/dev/null 2>&1 ||
     fail "the Android release failed"
