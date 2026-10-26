@@ -3,6 +3,19 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `tooling/release.sh` and `check-version.sh` release Android apps too, which keep their version in `VERSION`, kept
+  within Play's version code. `RELEASE_SCOPE` gives the release commit a scope, for an app whose commits need one.
+- `tooling/release.mk`, the `release` and `release-dry` targets, which `common.mk` includes and an app without it can
+  include alone.
+
+### Changed
+
+- A release whose push is refused undoes its commit and tag, so it can be run again.
+
 ## 0.6.0 - 2026-10-25
 
 ### Added

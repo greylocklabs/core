@@ -26,9 +26,13 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
 
 - `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
   Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
-- `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release a Qt app: they date the notes in
-  `CHANGELOG.md`, set the version in CMake, the RPM spec, the Debian changelog and the AppStream metainfo, run
-  `make check`, then commit, tag and push. They read the app's name and id from its `CMakeLists.txt`.
+- `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release an app: they date the notes in
+  `CHANGELOG.md`, set the version, run `make check`, then commit, tag and push, undoing the commit and tag if the push
+  is refused. A Qt app's version is set in CMake, the RPM spec, the Debian changelog and the AppStream metainfo, and
+  its name and id come from its `CMakeLists.txt`. An Android app's version is its `VERSION` file, kept within Play's
+  version code, and its name comes from `settings.gradle.kts`.
+- `tooling/release.mk` holds the `release` and `release-dry` targets. `common.mk` includes it, and an app without
+  `common.mk`, such as Woodshed, includes it alone, setting `RELEASE_SCOPE` if its commits need a scope.
 - `tooling/source-tarball.sh` writes an app's release tarball with core's buildable files, such as the themes,
   included at `core/`, since `git archive` leaves submodules out.
 - `tooling/common.mk` holds the everyday make targets: `build`, `run`, `logs`, `watch`, `gallery`, `screenshots`,
@@ -88,16 +92,17 @@ and `format:md:check` scripts in `package.json`, a GUI and gallery that take `--
 
 The scripts expect the app's files where Callie and Jot keep them: `CMakeLists.txt` with `project(<app>` and
 `set(<APP>_APP_ID ...)`, `packaging/rpm/<app>.spec`, `packaging/debian/control` and `changelog`,
-`data/<app id>.metainfo.xml`, and `CHANGELOG.md` with an `## Unreleased` section.
+`data/<app id>.metainfo.xml`, and `CHANGELOG.md` with an `## Unreleased` section. An Android app, as Woodshed, needs
+`VERSION`, `settings.gradle.kts` with `rootProject.name`, and the same `CHANGELOG.md`.
 
 ## Developing
 
 ```sh
 npm install
 cmake -S . -B build -G Ninja -DGREYLOCK_WERROR=ON && cmake --build build && ctest --test-dir build
-tests/release_test.sh   # releases a made-up app to a local remote
+tests/release_test.sh   # releases made-up Qt and Android apps to local remotes
 tests/tarball_test.sh   # builds a made-up app's release tarball
-tests/make_test.sh      # includes common.mk in a made-up app
+tests/make_test.sh      # includes common.mk, and release.mk alone, in made-up apps
 npm run format:check
 ```
 
