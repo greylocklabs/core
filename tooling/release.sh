@@ -191,14 +191,17 @@ else
     printf '%s\n' "$next" >VERSION
 fi
 
-# The tests read the dated notes, so they run on the release as it will be tagged.
-if ! make check; then
+# Puts the version files back and the notes under ## Unreleased, keeping any written up here.
+undo() {
     sed -i "s/^## $next - $today\$/## Unreleased/" CHANGELOG.md
     git checkout -- "${files[@]:1}"
-    [ "$drafted" = 0 ] || fail "make check failed on $next; the notes written up are left under" \
-        "## Unreleased, to commit and push before releasing again"
-    fail "make check failed on $next; the notes are left under ## Unreleased"
-fi
+    [ "$drafted" = 0 ] || fail "$1; the notes written up are left under ## Unreleased, to commit and push" \
+        "before releasing again"
+    fail "$1; the notes are left under ## Unreleased"
+}
+
+# The tests read the dated notes, so they run on the release as it will be tagged.
+make check || undo "make check failed on $next"
 
 "$tools/check-version.sh" "$next"
 git --no-pager diff --stat
@@ -223,7 +226,7 @@ if ! git push --atomic --follow-tags origin main; then
     # Nothing reached origin, so the commit and tag are undone here too, and the
     # release can be run again once the problem is fixed.
     git tag -d "v$next" >/dev/null
-    git reset --quiet --hard "$start"
-    fail "the push was refused, so the release commit and tag were undone; fix that and run it again"
+    git reset --quiet "$start"
+    undo "the push was refused, so the release commit and tag were undone"
 fi
 echo "Released v$next; the release workflow builds and publishes it."
