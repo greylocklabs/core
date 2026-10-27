@@ -2,6 +2,8 @@
 # core with these attributes. Only what builds an app goes in: the themes, with the license and
 # README. Paths start with a slash so they match only at the root.
 /tooling                 export-ignore
+# Only the Android apps build the Compose library, and they take core as a submodule.
+/android                 export-ignore
 /tests                   export-ignore
 /scripts                 export-ignore
 /.github                 export-ignore
