@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Changed
+
+- `common.mk` builds and tests with half the cores at the lowest CPU and disk priority, so the desktop stays usable
+  during `make check` and `make release`. `JOBS=n` sets the number of jobs.
+
 ## 0.8.0 - 2026-10-27
 
 ### Added

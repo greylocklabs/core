@@ -51,6 +51,13 @@ expect screenshots "--sample --theme"
 expect screenshots "app-\$theme.png"
 expect deps "demo-fedora-deps"
 expect release "core/tooling/release.sh"
+expect build "nice -n 19"
+expect check "nice -n 19"
+# What make hands the builds, as the environment variable named.
+level() { make -s --eval "level: ; @echo \$\$$1" level; }
+[ "$(level CMAKE_BUILD_PARALLEL_LEVEL)" = "$(($(nproc) > 1 ? $(nproc) / 2 : 1))" ] ||
+    fail "builds do not take half the cores"
+[ "$(JOBS=3 level CTEST_PARALLEL_LEVEL)" = 3 ] || fail "JOBS does not set the count"
 [ "$(make -n release minor 2>&1 | grep -c 'release.sh minor')" -ge 1 ] || fail "make release minor does not pass the level"
 
 # An app without common.mk, as an Android one, takes the release targets alone, with its commit scope.
