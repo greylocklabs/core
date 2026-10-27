@@ -19,10 +19,11 @@ export GIT_COMMITTER_NAME=Demo GIT_COMMITTER_EMAIL=hello@example.org
 
 # A core like this one, with this repository's .gitattributes.
 core="$tmp/core"
-mkdir -p "$core/themes" "$core/tooling"
+mkdir -p "$core/themes" "$core/tooling" "$core/android"
 cp "$repo/.gitattributes" "$repo/LICENSE" "$core/"
 echo 'name = "Demo"' >"$core/themes/demo.toml"
 echo 'echo hi' >"$core/tooling/release.sh"
+echo 'include(":ui")' >"$core/android/settings.gradle.kts"
 git -C "$core" init -q -b main
 git -C "$core" add -A
 git -C "$core" commit -q -m "chore: start"
@@ -47,7 +48,7 @@ for want in demo-1.0.0/CMakeLists.txt demo-1.0.0/src/core/main.cpp demo-1.0.0/co
     grep -qx "$want" <<<"$files" || fail "$want is missing"
 done
 for unwanted in demo-1.0.0/notes.md demo-1.0.0/.gitmodules demo-1.0.0/core/tooling/release.sh \
-    demo-1.0.0/core/.gitattributes; do
+    demo-1.0.0/core/.gitattributes demo-1.0.0/core/android/settings.gradle.kts; do
     ! grep -qx "$unwanted" <<<"$files" || fail "$unwanted should be left out"
 done
 
