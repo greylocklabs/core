@@ -26,6 +26,11 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
   Callie and Callie Light are the suite's built-in theme names in every app, and `callie` is the default theme every
   other inherits from.
 
+- `android/` builds `org.greylocklabs:ui`, the Compose library the Android apps share: every built-in theme as
+  Kotlin, generated from `themes/` at build time, `GreylockTheme` to draw an app in one, the fonts, and the
+  components every app uses, such as `StickerButton`, `PillChoice`, `SwitchRow` and `EmptyState`. It needs JDK 21
+  and the Android SDK.
+- `fonts/` holds Nunito and Fraunces, the suite's fonts, with their SIL Open Font License files.
 - `themes/*.toml` are the built-in themes every app ships: Callie, Callie Light, Minimal, Minimal Dark, Paper,
   Tomorrow and Tomorrow Night. `callie.toml` sets every key, and the others inherit what they leave out.
 - `tooling/release.sh`, `check-version.sh` and `release-notes.sh` release an app: they date the notes in
@@ -88,6 +93,14 @@ Then, from the app's root:
   archive leaves the empty submodule folder out; the script adds core's files back.
 - Add a `gitsubmodule` entry to `.github/dependabot.yml`, so each core release opens a pull request.
 
+An Android app includes the Compose library from the same submodule, in `settings.gradle.kts`:
+
+```kotlin
+includeBuild("core/android")
+```
+
+and depends on it with `implementation("org.greylocklabs:ui")`, then wraps its content in `GreylockTheme { }`.
+
 `common.mk` also expects `dev` and `ci` CMake presets, with a `ci` workflow and an `all_qmllint` target, `format:md`
 and `format:md:check` scripts in `package.json`, a GUI and gallery that take `--theme`, `--screenshot` and
 `--live-qml`, and a CLI with `logs --follow`. The top of `common.mk` lists the same.
@@ -106,6 +119,7 @@ tests/release_test.sh   # releases made-up Qt and Android apps to local remotes
 tests/tarball_test.sh   # builds a made-up app's release tarball
 tests/make_test.sh      # includes common.mk, and release.mk alone, in made-up apps
 npm run format:check
+(cd android && ./gradlew spotlessCheck :ui:testDebugUnitTest :ui:lintRelease)
 ```
 
 ## Releasing core

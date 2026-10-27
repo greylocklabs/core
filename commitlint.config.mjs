@@ -5,6 +5,7 @@ export default config([
   "themes", // themes/
   "cpp", // the greylock:: library
   "qml", // Greylock.Ui
+  "android", // android/: the Compose library
   "cli", // command-line helpers
   "www", // shared site files
   "tests",

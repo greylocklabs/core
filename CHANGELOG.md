@@ -3,6 +3,19 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `android/`, the Compose library the Android apps share, as `org.greylocklabs:ui`: every built-in theme as Kotlin,
+  generated from `themes/`, `GreylockTheme`, and the shared components, moved from Woodshed. An app includes it with
+  `includeBuild("core/android")`.
+- `fonts/`, with Nunito and Fraunces and their licenses.
+
+### Changed
+
+- Callie Light's pink is deeper, with near-white text on it, so text on the accent is readable at any size.
+
 ## 0.8.1 - 2026-10-27
 
 ### Changed

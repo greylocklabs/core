@@ -1,0 +1,8 @@
+# Kotlin as the Android apps write it, checked by ktlint through `./gradlew spotlessCheck`.
+[*.{kt,kts}]
+indent_size = 2
+indent_style = space
+max_line_length = 160
+ktlint_code_style = intellij_idea
+# Composables are named like types.
+ktlint_function_naming_ignore_when_annotated_with = Composable
