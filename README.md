@@ -17,6 +17,8 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
   - The theme engine: `greylock::color` (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`,
     `greylock::ThemeLoader` and `greylock::base16`.
   - `greylock::ThemeLibrary`: the user's own theme files.
+  - `greylock::desktop::useDesktopFileDialogs()`: called first in `main`, it gives file and folder dialogs
+    the desktop's own chooser, through its portal, with its places and bookmarks.
   - Releases: `greylock::ReleaseNotes` reads the app's built-in changelog, `greylock::releases` and
     `greylock::PackageSystem` read GitHub's releases and pick this system's package, and `greylock::UpdateCheck` asks
     GitHub for the latest release at most once a day.
