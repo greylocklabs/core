@@ -21,6 +21,14 @@
 # The CMake presets do the real work; these targets give them short names. Run make to list them.
 
 PRESET ?= dev
+
+# Builds and tests use half the cores at the lowest priority, so the desktop stays usable while
+# they run; JOBS=n sets the count.
+JOBS ?= $(shell n=$$(nproc 2>/dev/null || echo 2); echo $$(( n > 1 ? n / 2 : 1 )))
+export CMAKE_BUILD_PARALLEL_LEVEL := $(JOBS)
+export CTEST_PARALLEL_LEVEL := $(JOBS)
+GENTLY := nice -n 19 $(if $(shell command -v ionice),ionice -c3)
+
 BUILD := build/$(PRESET)
 GUI := $(BUILD)/src/gui/$(GUI_TARGET)
 CLI := $(BUILD)/src/cli/$(CLI_TARGET)
@@ -45,7 +53,7 @@ WATCHED := { git ls-files --cached --others --exclude-standard -- src CMakeLists
 define watch
 	@command -v entr >/dev/null || { echo "make $@ needs entr: run make deps" >&2; exit 1; }
 	@status=2; while [ $$status -eq 2 ]; do \
-		$(WATCHED) | entr -d -r -z -s 'cmake --build --preset $(PRESET) --target $(1) || exec sleep infinity; \
+		$(WATCHED) | entr -d -r -z -s '$(GENTLY) cmake --build --preset $(PRESET) --target $(1) || exec sleep infinity; \
 			env $(DEV_ENV) $(2) || { echo "$(1) exited with status $$?, waiting for a change" >&2; exec sleep infinity; }'; \
 		status=$$?; \
 	done
@@ -66,7 +74,7 @@ setup: ## Fetch core, install dev tooling, enable git hooks, and configure
 	@git submodule update --init
 	@npm ci
 	@git config core.hooksPath .githooks
-	@cmake --preset $(PRESET)
+	@$(GENTLY) cmake --preset $(PRESET)
 	@touch $(PRESET_STAMP)
 
 # CMake re-runs itself with the cached settings, so a changed preset only reaches
@@ -74,15 +82,15 @@ setup: ## Fetch core, install dev tooling, enable git hooks, and configure
 PRESET_STAMP := $(BUILD)/.preset-applied
 
 $(PRESET_STAMP): CMakePresets.json
-	@cmake --preset $(PRESET)
+	@$(GENTLY) cmake --preset $(PRESET)
 	@touch $@
 
 configure: ## Re-run CMake
-	@cmake --preset $(PRESET)
+	@$(GENTLY) cmake --preset $(PRESET)
 	@touch $(PRESET_STAMP)
 
 build: $(PRESET_STAMP) ## Build everything
-	@cmake --build --preset $(PRESET)
+	@$(GENTLY) cmake --build --preset $(PRESET)
 
 run: build ## Run the app with logging on; ARGS="..." passes options
 	@$(DEV_ENV) $(GUI) $(ARGS)
@@ -116,10 +124,10 @@ screenshots: build ## Render the app and gallery for every built-in theme
 	@echo "Screenshots are in $(SHOTS)"
 
 test: build ## Run the tests
-	@ctest --preset $(PRESET)
+	@$(GENTLY) ctest --preset $(PRESET)
 
 lint: build ## Lint QML and Markdown
-	@cmake --build --preset $(PRESET) --target all_qmllint
+	@$(GENTLY) cmake --build --preset $(PRESET) --target all_qmllint
 	@npx markdownlint-cli2
 
 format: ## Format C++, QML, Markdown, JSON and YAML in place
@@ -131,7 +139,7 @@ check: ## Run everything CI checks: format, lint, a -Werror build, and tests
 	@core/tooling/check-version.sh
 	@npx markdownlint-cli2
 	@npm run --silent format:md:check
-	@cmake --workflow --preset ci
+	@$(GENTLY) cmake --workflow --preset ci
 
 clean: ## Remove build output
 	@rm -rf build
