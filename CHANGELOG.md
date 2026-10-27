@@ -3,7 +3,7 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
-## Unreleased
+## 0.9.0 - 2026-10-27
 
 ### Added
 
