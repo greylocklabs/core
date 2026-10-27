@@ -47,6 +47,8 @@ add_library(greylock_core STATIC
     cpp/src/Base16.cpp
     cpp/include/greylock/Color.h
     cpp/src/Color.cpp
+    cpp/include/greylock/Desktop.h
+    cpp/src/Desktop.cpp
     cpp/include/greylock/Identity.h
     cpp/src/Identity.cpp
     cpp/include/greylock/ReleaseNotes.h

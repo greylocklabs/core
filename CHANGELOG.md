@@ -3,6 +3,15 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `greylock::desktop::useDesktopFileDialogs()`, for an app to call before it makes its application:
+  file and folder dialogs come from the desktop's file chooser portal, as KDE's or GNOME's own
+  dialog with their places and bookmarks, rather than Qt's. A platform theme the user set, or a
+  Flatpak, is left as it is.
+
 ## 0.7.0 - 2026-10-26
 
 ### Added
