@@ -3,6 +3,14 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- The desktop session pieces Callie had, for any app that keeps running in the background: a tray
+  entry whose menu the app gives, desktop notifications, one copy per session, and starting at
+  login, also in a Flatpak. Core now needs Qt D-Bus.
+
 ## 0.9.1 - 2026-10-27
 
 ### Changed

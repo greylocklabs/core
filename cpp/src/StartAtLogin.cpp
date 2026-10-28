@@ -1,0 +1,113 @@
+#include "greylock/StartAtLogin.h"
+
+#include "greylock/Autostart.h"
+#include "greylock/Identity.h"
+
+#include <QCoreApplication>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusPendingCall>
+#include <QDBusPendingCallWatcher>
+#include <QFileInfo>
+#include <QRandomGenerator>
+
+using namespace Qt::StringLiterals;
+
+namespace greylock {
+
+StartAtLogin::StartAtLogin(QObject *parent) : QObject(parent) {}
+
+StartAtLogin *StartAtLogin::instance()
+{
+    static auto *startAtLogin = new StartAtLogin(QCoreApplication::instance());
+    return startAtLogin;
+}
+
+void StartAtLogin::setup(Autostart *autostart)
+{
+    m_autostart = autostart;
+    Q_EMIT changed();
+}
+
+bool StartAtLogin::enabled() const
+{
+    return m_autostart && m_autostart->isEnabled();
+}
+
+void StartAtLogin::setEnabled(bool enabled)
+{
+    if (!m_autostart)
+        return;
+    if (enabled == this->enabled()) {
+        // Already so, perhaps from the desktop's own settings: nothing has failed.
+        if (!m_error.isEmpty()) {
+            m_error.clear();
+            Q_EMIT changed();
+        }
+        return;
+    }
+    m_error = m_autostart->setEnabled(enabled) ? QString() : m_autostart->errorString();
+    // In a Flatpak the entry stays in the sandbox, as the record of the setting,
+    // and the Background portal starts the app at login.
+    if (m_error.isEmpty() && greylock::identity::isFlatpak())
+        requestBackground(enabled);
+    Q_EMIT changed();
+}
+
+void StartAtLogin::requestBackground(bool autostart)
+{
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!m_request.isEmpty())
+        bus.disconnect(m_portal, m_request, u"org.freedesktop.portal.Request"_s, u"Response"_s,
+                       this, SLOT(backgroundAnswered(uint, QVariantMap)));
+    // The request's path is known ahead, so its answer cannot come before the app listens.
+    const QString token = u"greylock%1"_s.arg(QRandomGenerator::global()->generate());
+    QString sender = bus.baseService().mid(1);
+    sender.replace(u'.', u'_');
+    m_request = u"/org/freedesktop/portal/desktop/request/%1/%2"_s.arg(sender, token);
+    m_requestedAutostart = autostart;
+    bus.connect(m_portal, m_request, u"org.freedesktop.portal.Request"_s, u"Response"_s, this,
+                SLOT(backgroundAnswered(uint, QVariantMap)));
+
+    QDBusMessage call = QDBusMessage::createMethodCall(
+        m_portal, u"/org/freedesktop/portal/desktop"_s, u"org.freedesktop.portal.Background"_s,
+        u"RequestBackground"_s);
+    const QVariantMap options{
+        {u"handle_token"_s, token},
+        {u"reason"_s, m_autostart->reason()},
+        {u"autostart"_s, autostart},
+        {u"commandline"_s,
+         QStringList{QFileInfo(m_autostart->program()).fileName(),
+                     u"--"_s + QString::fromLatin1(Autostart::kBackgroundOption)}},
+        {u"dbus-activatable"_s, false},
+    };
+    call << QString() << options;
+    auto *watcher = new QDBusPendingCallWatcher(bus.asyncCall(call), this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher, autostart] {
+        watcher->deleteLater();
+        if (watcher->isError() && autostart)
+            refused(tr("the desktop could not be asked: %1").arg(watcher->error().message()));
+    });
+}
+
+void StartAtLogin::backgroundAnswered(uint response, const QVariantMap &results)
+{
+    QDBusConnection::sessionBus().disconnect(m_portal, m_request,
+                                             u"org.freedesktop.portal.Request"_s, u"Response"_s,
+                                             this, SLOT(backgroundAnswered(uint, QVariantMap)));
+    m_request.clear();
+    // 0 is yes; 1 is the user saying no, 2 anything else.
+    if (m_requestedAutostart && (response != 0 || !results.value(u"autostart"_s).toBool()))
+        refused(tr("the desktop did not allow %1 to start at login")
+                    .arg(greylock::identity::displayName()));
+}
+
+void StartAtLogin::refused(const QString &why)
+{
+    if (m_autostart)
+        m_autostart->setEnabled(false);
+    m_error = why;
+    Q_EMIT changed();
+}
+
+} // namespace greylock
