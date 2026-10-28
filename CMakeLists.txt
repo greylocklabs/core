@@ -21,7 +21,7 @@ if(PROJECT_IS_TOP_LEVEL)
     endif()
 endif()
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Network)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Network DBus)
 find_package(tomlplusplus REQUIRED)
 
 # The app core is built into, set by the app before add_subdirectory(core). On its own,
@@ -43,6 +43,8 @@ endforeach()
 add_library(greylock_core STATIC
     cpp/include/greylock/App.h
     cpp/src/App.cpp
+    cpp/include/greylock/Autostart.h
+    cpp/src/Autostart.cpp
     cpp/include/greylock/Base16.h
     cpp/src/Base16.cpp
     cpp/include/greylock/Color.h
@@ -51,15 +53,23 @@ add_library(greylock_core STATIC
     cpp/src/Desktop.cpp
     cpp/include/greylock/Identity.h
     cpp/src/Identity.cpp
+    cpp/include/greylock/Notifications.h
+    cpp/src/Notifications.cpp
     cpp/include/greylock/ReleaseNotes.h
     cpp/src/ReleaseNotes.cpp
     cpp/include/greylock/Releases.h
     cpp/src/Releases.cpp
-    cpp/include/greylock/ThemeLoader.h
-    cpp/src/ThemeLoader.cpp
+    cpp/include/greylock/SingleInstance.h
+    cpp/src/SingleInstance.cpp
+    cpp/include/greylock/StartAtLogin.h
+    cpp/src/StartAtLogin.cpp
     cpp/include/greylock/ThemeLibrary.h
     cpp/src/ThemeLibrary.cpp
+    cpp/include/greylock/ThemeLoader.h
+    cpp/src/ThemeLoader.cpp
     cpp/include/greylock/ThemeSpec.h
+    cpp/include/greylock/Tray.h
+    cpp/src/Tray.cpp
     cpp/include/greylock/UpdateCheck.h
     cpp/src/UpdateCheck.cpp
 )
@@ -81,6 +91,7 @@ target_link_libraries(greylock_core
         Qt6::Core
         Qt6::Gui
         Qt6::Network
+        Qt6::DBus
     PRIVATE
         tomlplusplus::tomlplusplus
 )

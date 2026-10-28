@@ -54,7 +54,7 @@ jobs:
         run: >-
           dnf install -y --setopt=install_weak_deps=False
           git gcc-c++ cmake ninja-build clang-tools-extra qt6-qtbase-devel qt6-qtdeclarative-devel
-          tomlplusplus-devel
+          tomlplusplus-devel dbus-daemon
 
       - name: Install build dependencies (Debian)
         if: matrix.name == 'debian'
@@ -62,7 +62,7 @@ jobs:
           apt-get update -qq
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             git ca-certificates build-essential cmake ninja-build clang-format qt6-base-dev \
-            qt6-declarative-dev-tools libtomlplusplus-dev
+            qt6-declarative-dev-tools libtomlplusplus-dev dbus-daemon
 
       - uses: actions/checkout@v7
 

@@ -17,6 +17,11 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
   - The theme engine: `greylock::color` (OKLCH, contrast and hex parsing), `greylock::ThemeSpec`,
     `greylock::ThemeLoader` and `greylock::base16`.
   - `greylock::ThemeLibrary`: the user's own theme files.
+  - The desktop session, over D-Bus, for an app that keeps running in the background:
+    `greylock::TrayItem` (its tray entry, with the menu the app gives it),
+    `greylock::FreedesktopNotifications`, `greylock::SingleInstance` (one copy per session, which
+    a second launch brings forward), and `greylock::Autostart` with `greylock::StartAtLogin` (start
+    at login, through the Background portal in a Flatpak). They need Qt D-Bus.
   - `greylock::desktop::useDesktopFileDialogs()`: called first in `main`, it gives file and folder dialogs
     the desktop's own chooser, through its portal, with its places and bookmarks.
   - Releases: `greylock::ReleaseNotes` reads the app's built-in changelog, `greylock::releases` and
