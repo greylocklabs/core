@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Changed
+
+- The Compose library builds with the Android Gradle plugin 9.4.1 and Compose BOM 2026.09.00. An app
+  that includes it needs the same plugin version, or Gradle cannot resolve `org.greylocklabs:ui`.
+
 ## 0.10.0 - 2026-10-27
 
 ### Added
