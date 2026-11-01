@@ -1,7 +1,7 @@
 # Kept level with the apps that include this build, so they resolve the same versions.
 [versions]
-androidGradlePlugin = "9.0.1"
-androidxComposeBom = "2026.03.01"
+androidGradlePlugin = "9.4.1"
+androidxComposeBom = "2026.09.00"
 junit = "4.13.2"
 kotlin = "2.4.21"
 ktlint = "1.8.0"
