@@ -132,7 +132,7 @@ fun Helper(text: String, modifier: Modifier = Modifier) {
 
 /**
  * What a list shows when nothing is in it: a large emoji, a heading, a line of help and, when there is a way out,
- * a button to take it. Centred in the space the list would have used.
+ * a button to take it. Centered in the space the list would have used.
  */
 @Composable
 fun EmptyState(
