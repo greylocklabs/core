@@ -30,8 +30,8 @@ export function config(scopes) {
           "docs", // README, CONTRIBUTING, code comments only
           "feat", // new user-facing capability
           "fix", // bug fix
-          "perf", // performance with no behaviour change
-          "refactor", // restructuring with no behaviour change
+          "perf", // performance with no behavior change
+          "refactor", // restructuring with no behavior change
           "revert", // reverts a previous commit
           "style", // formatting only, no code change
           "test", // tests only
