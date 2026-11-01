@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Fixed
+
+- The Compose library builds where the Java running Gradle has no compiler, as with many Linux
+  distributions' Java packages: it asks for JDK 21, which Gradle downloads when it is not installed.
+
 ## 0.10.1 - 2026-11-01
 
 ### Changed

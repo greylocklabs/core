@@ -129,6 +129,11 @@ android {
   }
 }
 
+// Gradle fetches this JDK when the one running it is missing or has no compiler, as many distributions' Java packages do.
+kotlin {
+  jvmToolchain(21)
+}
+
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
   api(libs.androidx.compose.material3)
