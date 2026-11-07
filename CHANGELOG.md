@@ -3,6 +3,14 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Changed
+
+- The Compose library builds with the Android Gradle plugin 9.5.0, which an app that includes it
+  needs too, and asks for androidx Lifecycle 2.11.0, as the plugin's lint cannot run the checks the
+  Compose BOM's Lifecycle brings.
+
 ## 0.10.2 - 2026-11-01
 
 ### Fixed
