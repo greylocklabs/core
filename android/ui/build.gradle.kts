@@ -138,5 +138,6 @@ dependencies {
   implementation(platform(libs.androidx.compose.bom))
   api(libs.androidx.compose.material3)
   api(libs.androidx.compose.ui)
+  implementation(libs.androidx.lifecycle.runtime)
   testImplementation(libs.junit)
 }
