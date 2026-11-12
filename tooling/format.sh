@@ -66,13 +66,18 @@ else
     said="$(mktemp)"
     trap 'rm -f "$said"' EXIT
     for f in "${qml[@]}"; do
-        formatted="$(QT_FORCE_STDERR_LOGGING=1 "$qmlformat_bin" "$f" 2>"$said")"
-        if grep -q 'Unhandled state' "$said"; then
+        if ! formatted="$(QT_FORCE_STDERR_LOGGING=1 "$qmlformat_bin" "$f" 2>"$said")"; then
+            cat "$said" >&2
+            echo "format: qmlformat failed on $f" >&2
+            status=1
+        elif grep -q 'Unhandled state' "$said"; then
             echo "format: qmlformat cannot lay out $f; write its JavaScript another way" >&2
             status=1
         elif [ "$mode" = fix ]; then
-            "$qmlformat_bin" -i "$f"
+            cat "$said" >&2
+            "$qmlformat_bin" -i "$f" || status=1
         elif ! printf '%s\n' "$formatted" | diff -q - "$f" >/dev/null; then
+            cat "$said" >&2
             echo "format: $f is not formatted" >&2
             status=1
         fi

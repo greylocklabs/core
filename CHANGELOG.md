@@ -3,6 +3,15 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Fixed
+
+- `format.sh check` fails on a QML file whose JavaScript qmlformat cannot lay out, which `fix` used
+  to mangle without a word, and `fix` leaves such a file alone. An app whose check now fails names
+  the file; rewrite the JavaScript it points at, such as an arrow function returning an object
+  literal inside a chained call, as a plain loop.
+
 ## 0.10.3 - 2026-11-06
 
 ### Changed
