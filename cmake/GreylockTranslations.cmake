@@ -38,5 +38,6 @@ function(greylock_add_translations target)
                 "${Qt6LinguistTools_DIR}/GenerateLUpdateProject.cmake"
                 "${CMAKE_CURRENT_BINARY_DIR}/.lupdate/${lupdate}_project.cmake"
                 ${ts_files})
+        set_tests_properties(translations_current PROPERTIES SKIP_RETURN_CODE 77)
     endif()
 endfunction()

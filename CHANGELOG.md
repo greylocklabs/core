@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Fixed
+
+- The `translations_current` test skips where lupdate cannot read QML, as in the KDE Flatpak SDK,
+  rather than failing, and shows how a stale file differs where `diff` is installed.
+
 ## 0.11.0 - 2026-11-12
 
 ### Added
