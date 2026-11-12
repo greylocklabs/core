@@ -57,14 +57,22 @@ if [ "${#qml[@]}" -eq 0 ]; then
 elif [ ! -x "$qmlformat_bin" ]; then
     echo "format: qmlformat not found, skipping QML" >&2
     [ "$mode" = check ] && status=1
-elif [ "$mode" = fix ]; then
-    "$qmlformat_bin" -i "${qml[@]}"
-elif ! command -v diff >/dev/null; then
+elif [ "$mode" = check ] && ! command -v diff >/dev/null; then
     echo "format: diff not found, cannot check QML" >&2
     status=1
 else
+    # qmlformat says "Unhandled state" for JavaScript it cannot lay out, and then mangles the
+    # rest of the file; Qt prints that only to a terminal unless told to print it anyway.
+    said="$(mktemp)"
+    trap 'rm -f "$said"' EXIT
     for f in "${qml[@]}"; do
-        if ! "$qmlformat_bin" "$f" | diff -q - "$f" >/dev/null; then
+        formatted="$(QT_FORCE_STDERR_LOGGING=1 "$qmlformat_bin" "$f" 2>"$said")"
+        if grep -q 'Unhandled state' "$said"; then
+            echo "format: qmlformat cannot lay out $f; write its JavaScript another way" >&2
+            status=1
+        elif [ "$mode" = fix ]; then
+            "$qmlformat_bin" -i "$f"
+        elif ! printf '%s\n' "$formatted" | diff -q - "$f" >/dev/null; then
             echo "format: $f is not formatted" >&2
             status=1
         fi
