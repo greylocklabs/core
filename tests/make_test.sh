@@ -53,6 +53,8 @@ expect deps "demo-fedora-deps"
 expect release "core/tooling/release.sh"
 expect build "nice -n 19"
 expect check "nice -n 19"
+mkdir translations
+expect translations "--target update_translations"
 # What make hands the builds, as the environment variable named.
 level() { make -s --eval "level: ; @echo \$\$$1" level; }
 [ "$(level CMAKE_BUILD_PARALLEL_LEVEL)" = "$(($(nproc) > 1 ? $(nproc) / 2 : 1))" ] ||

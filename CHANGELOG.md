@@ -5,6 +5,14 @@ and `scripts/release.sh` dates them.
 
 ## Unreleased
 
+### Added
+
+- `greylock_add_translations()` and `greylock::installTranslations()` keep an app's strings, core's own
+  among them, in `translations/<app>_<language>.ts`, compiled in and installed at startup, with a
+  `translations_current` test for stale files and a `make translations` target. An app that has its own
+  `qt_add_translations` call and installer switches to these; until it does, core's strings stay out of its
+  files.
+
 ### Fixed
 
 - `format.sh check` fails on a QML file whose JavaScript qmlformat cannot lay out, which `fix` used

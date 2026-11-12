@@ -68,6 +68,8 @@ add_library(greylock_core STATIC
     cpp/include/greylock/ThemeLoader.h
     cpp/src/ThemeLoader.cpp
     cpp/include/greylock/ThemeSpec.h
+    cpp/include/greylock/Translations.h
+    cpp/src/Translations.cpp
     cpp/include/greylock/Tray.h
     cpp/src/Tray.cpp
     cpp/include/greylock/UpdateCheck.h
@@ -104,6 +106,8 @@ qt_add_resources(greylock_core "greylock_themes"
     BASE "${PROJECT_SOURCE_DIR}"
     FILES ${greylock_themes}
 )
+
+include(cmake/GreylockTranslations.cmake)
 
 option(GREYLOCK_BUILD_TESTS "Build core's tests" ${PROJECT_IS_TOP_LEVEL})
 if(GREYLOCK_BUILD_TESTS)
