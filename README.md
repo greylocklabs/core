@@ -24,6 +24,8 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
     at login, through the Background portal in a Flatpak). They need Qt D-Bus.
   - `greylock::desktop::useDesktopFileDialogs()`: called first in `main`, it gives file and folder dialogs
     the desktop's own chooser, through its portal, with its places and bookmarks.
+  - `greylock::installTranslations()` and `cmake/GreylockTranslations.cmake`: an app's strings, core's
+    among them, in Qt translation files, with English wording that can be edited apart from the code.
   - Releases: `greylock::ReleaseNotes` reads the app's built-in changelog, `greylock::releases` and
     `greylock::PackageSystem` read GitHub's releases and pick this system's package, and `greylock::UpdateCheck` asks
     GitHub for the latest release at most once a day.
@@ -78,6 +80,19 @@ Then, from the app's root:
   set(GREYLOCK_APP_DEVEL OFF)                # a development build, with its own identity
   add_subdirectory(core)
   ```
+
+- Keep the app's strings in `translations/<GREYLOCK_APP_DIR>_en.ts`, with core's included, by naming the
+  targets whose code has them, and call `greylock::installTranslations(app)` right after making the
+  application:
+
+  ```cmake
+  greylock_add_translations(democore SOURCE_TARGETS democore demoui demo-gui)
+  ```
+
+  `make translations` reads the strings out of the code again, and the `translations_current` test fails
+  while a file is stale. Another language is another `translations/demo_<language>.ts`. The build needs Qt's
+  Linguist tools: `qt6-qttools-devel` and `qt6-linguist` on Fedora, `qt6-tools-dev` and `qt6-l10n-tools` on
+  Debian.
 
 - Link each config into the root, where the tools look for it, for example
   `ln -s core/tooling/.clang-format .clang-format`, and the hook as

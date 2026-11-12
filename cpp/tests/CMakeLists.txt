@@ -35,3 +35,13 @@ greylock_add_test(tst_notifications)
 greylock_add_test(tst_singleinstance BUS)
 greylock_add_test(tst_startatlogin BUS)
 greylock_add_test(tst_trayitem BUS)
+
+# The Demo app's words, core's own among them, where an app keeps its translations. Core's CI
+# installs Qt's Linguist tools, so this runs there.
+find_package(Qt6 QUIET COMPONENTS LinguistTools)
+if(Qt6LinguistTools_FOUND)
+    greylock_add_test(tst_translations)
+    greylock_add_translations(tst_translations
+        SOURCE_TARGETS tst_translations
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/translations)
+endif()

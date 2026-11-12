@@ -60,7 +60,7 @@ define watch
 endef
 
 .DEFAULT_GOAL := help
-.PHONY: help deps setup configure build run logs cli gallery watch watch-gallery screenshots test lint format check clean
+.PHONY: help deps setup configure build run logs cli gallery watch watch-gallery screenshots test lint format translations check clean
 
 help: ## List commands
 	@awk 'BEGIN {FS = ":.*## "} /^[a-z-]+:.*## / {printf "  make %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -133,6 +133,10 @@ lint: build ## Lint QML and Markdown
 format: ## Format C++, QML, Markdown, JSON and YAML in place
 	@core/tooling/format.sh fix
 	@npm run --silent format:md
+
+# Phony above, as the translations/ folder would otherwise count as made.
+translations: $(PRESET_STAMP) ## Read the strings in the code into translations/ again
+	@$(GENTLY) cmake --build --preset $(PRESET) --target update_translations
 
 check: ## Run everything CI checks: format, lint, a -Werror build, and tests
 	@core/tooling/format.sh check
