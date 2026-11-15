@@ -14,6 +14,9 @@ and `scripts/release.sh` dates them.
 - The tests' `FakeHttpServer` is the apps' fuller one, with per-request handlers.
 - `greylock::logfile` keeps an app's log in `$XDG_STATE_HOME/<app>/logs` as well as the terminal, and
   `setDebug()` turns on the debug messages of the categories named after the app's command.
+- `greylock::problemreport` sends a "Report a problem" to the shared report service, or opens it as an issue,
+  in the app's repository; `greylock::issues` fits a report into a new GitHub issue's address. The service
+  can be overridden with `<ENV>_REPORT_SERVICE`, for tests.
 
 ## 0.11.1 - 2026-11-12
 
