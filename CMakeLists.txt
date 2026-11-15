@@ -47,6 +47,14 @@ add_library(greylock_core STATIC
     cpp/src/Autostart.cpp
     cpp/include/greylock/Base16.h
     cpp/src/Base16.cpp
+    cpp/include/greylock/cli/Paint.h
+    cpp/src/cli/Paint.cpp
+    cpp/include/greylock/cli/Palette.h
+    cpp/src/cli/Palette.cpp
+    cpp/include/greylock/cli/UpdateHint.h
+    cpp/src/cli/UpdateHint.cpp
+    cpp/include/greylock/cli/Upgrade.h
+    cpp/src/cli/Upgrade.cpp
     cpp/include/greylock/Color.h
     cpp/src/Color.cpp
     cpp/include/greylock/Desktop.h

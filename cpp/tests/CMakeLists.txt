@@ -30,6 +30,8 @@ qt_add_resources(tst_releasenotes "demo_changelog"
 )
 greylock_add_test(tst_releases)
 greylock_add_test(tst_updatecheck)
+greylock_add_test(tst_paint)
+greylock_add_test(tst_upgrade)
 greylock_add_test(tst_autostart)
 greylock_add_test(tst_notifications)
 greylock_add_test(tst_singleinstance BUS)

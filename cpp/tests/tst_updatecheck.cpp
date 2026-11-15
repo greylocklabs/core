@@ -62,7 +62,7 @@ void TestUpdateCheck::remembersTheLatestRelease()
     QSignalSpy checked(check.get(), &UpdateCheck::checked);
     check->check();
     QVERIFY(checked.wait());
-    QCOMPARE(m_github->targets.last(), QByteArray("/releases/latest"));
+    QCOMPARE(m_github->requests.last().target, QByteArray("/releases/latest"));
 
     // Read back by another, as the CLI and the app each are.
     const std::optional<Release> newer = make()->newerThan(QVersionNumber(0, 3, 0));

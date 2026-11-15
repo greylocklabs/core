@@ -18,6 +18,11 @@ struct Names
 };
 [[nodiscard]] Names namesFor(bool devel);
 
+/// The app's command and package name, such as "demo", the same in a development build.
+[[nodiscard]] QString command();
+/// The app's name, such as "Demo", as messages name it.
+[[nodiscard]] QString name();
+
 /// This build's names.
 [[nodiscard]] QString appId();
 [[nodiscard]] QString dirName();

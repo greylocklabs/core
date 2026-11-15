@@ -24,6 +24,8 @@ void TestIdentity::theAppIsWhatCMakeSays()
     QVERIFY(!identity::isDevel());
     QCOMPARE(identity::appId(), u"org.example.Demo"_s);
     QCOMPARE(identity::dirName(), u"demo"_s);
+    QCOMPARE(identity::command(), u"demo"_s);
+    QCOMPARE(identity::name(), u"Demo"_s);
 }
 
 void TestIdentity::developmentBuildsStandApart()

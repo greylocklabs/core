@@ -16,6 +16,16 @@ Names namesFor(bool devel)
     return {a.id, a.dirName, a.name};
 }
 
+QString command()
+{
+    return app().dirName;
+}
+
+QString name()
+{
+    return app().name;
+}
+
 QString appId()
 {
     return namesFor(isDevel()).appId;

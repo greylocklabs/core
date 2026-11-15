@@ -6,7 +6,7 @@ The code, themes and tooling that the [Greylock Labs](https://greylocklabs.org) 
 reaches an app only when the app takes a new release of core.
 
 For now core holds the tooling, the themes and the theme engine, the start of the `greylock::core` C++ library. More of
-the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the shared site files move in next.
+the shared C++, the `Greylock.Ui` QML module and the shared site files move in next.
 
 ## What is here
 
@@ -26,6 +26,9 @@ the shared C++, the `Greylock.Ui` QML module, the command-line helpers and the s
     the desktop's own chooser, through its portal, with its places and bookmarks.
   - `greylock::installTranslations()` and `cmake/GreylockTranslations.cmake`: an app's strings, core's
     among them, in Qt translation files, with English wording that can be edited apart from the code.
+  - The command line, in `greylock::cli`: `Paint` and `Palette` color a terminal's output in the theme,
+    `UpdateHint` ends a command with a word about a newer release, and `Upgrade` is an app's `upgrade` and
+    `downgrade` commands, installing GitHub's package for this system after checking its checksum.
   - Releases: `greylock::ReleaseNotes` reads the app's built-in changelog, `greylock::releases` and
     `greylock::PackageSystem` read GitHub's releases and pick this system's package, and `greylock::UpdateCheck` asks
     GitHub for the latest release at most once a day.
