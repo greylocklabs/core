@@ -26,6 +26,7 @@ the shared C++, the `Greylock.Ui` QML module and the shared site files move in n
     the desktop's own chooser, through its portal, with its places and bookmarks.
   - `greylock::installTranslations()` and `cmake/GreylockTranslations.cmake`: an app's strings, core's
     among them, in Qt translation files, with English wording that can be edited apart from the code.
+  - `greylock::logfile`: the app's log file beside the terminal, kept short, with debug messages on request.
   - The command line, in `greylock::cli`: `Paint` and `Palette` color a terminal's output in the theme,
     `UpdateHint` ends a command with a word about a newer release, and `Upgrade` is an app's `upgrade` and
     `downgrade` commands, installing GitHub's package for this system after checking its checksum.

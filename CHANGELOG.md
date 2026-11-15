@@ -12,6 +12,8 @@ and `scripts/release.sh` dates them.
   Their messages name the app from `greylock::identity`, which gains `command()` and `name()`, and
   `Upgrade::setInstallCommand()` gives the installer line. `Upgrade` sends a Flatpak to Flathub to update.
 - The tests' `FakeHttpServer` is the apps' fuller one, with per-request handlers.
+- `greylock::logfile` keeps an app's log in `$XDG_STATE_HOME/<app>/logs` as well as the terminal, and
+  `setDebug()` turns on the debug messages of the categories named after the app's command.
 
 ## 0.11.1 - 2026-11-12
 
