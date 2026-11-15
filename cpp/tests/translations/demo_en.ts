@@ -2,6 +2,25 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en" sourcelanguage="en">
 <context>
+    <name>ProblemReport</name>
+    <message>
+        <source>The report service answered with an unexpected address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Too many reports from here. Try again in a minute.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not reach the report service: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The report service said no: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
         <source>there are no packages for %1 yet</source>

@@ -61,10 +61,14 @@ add_library(greylock_core STATIC
     cpp/src/Desktop.cpp
     cpp/include/greylock/Identity.h
     cpp/src/Identity.cpp
+    cpp/include/greylock/Issues.h
+    cpp/src/Issues.cpp
     cpp/include/greylock/LogFile.h
     cpp/src/LogFile.cpp
     cpp/include/greylock/Notifications.h
     cpp/src/Notifications.cpp
+    cpp/include/greylock/ProblemReport.h
+    cpp/src/ProblemReport.cpp
     cpp/include/greylock/ReleaseNotes.h
     cpp/src/ReleaseNotes.cpp
     cpp/include/greylock/Releases.h
