@@ -29,6 +29,8 @@ the shared C++, the `Greylock.Ui` QML module and the shared site files move in n
   - `greylock::logfile`: the app's log file beside the terminal, kept short, with debug messages on request.
   - `greylock::problemreport` and `greylock::issues`: "Report a problem", sent to the shared report service
     or opened as a new issue in the app's repository.
+  - `greylock::ui`, linked apart from `greylock::core` by apps drawn in Qt Quick: `LiveQml` serves the app's
+    QML from its source folder and reloads it on every save.
   - The command line, in `greylock::cli`: `Paint` and `Palette` color a terminal's output in the theme,
     `UpdateHint` ends a command with a word about a newer release, and `Upgrade` is an app's `upgrade` and
     `downgrade` commands, installing GitHub's package for this system after checking its checksum.

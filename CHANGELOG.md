@@ -17,6 +17,9 @@ and `scripts/release.sh` dates them.
 - `greylock::problemreport` sends a "Report a problem" to the shared report service, or opens it as an issue,
   in the app's repository; `greylock::issues` fits a report into a new GitHub issue's address. The service
   can be overridden with `<ENV>_REPORT_SERVICE`, for tests.
+- `greylock::ui`, a library apart from `greylock::core` for apps drawn in Qt Quick, built where Qt Quick is
+  installed, starts with `greylock::LiveQml`: an app's QML served from its source folder and reloaded on
+  every save, for a development build.
 
 ## 0.11.1 - 2026-11-12
 

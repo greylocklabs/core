@@ -121,6 +121,20 @@ qt_add_resources(greylock_core "greylock_themes"
     FILES ${greylock_themes}
 )
 
+# greylock::ui, for apps drawn in Qt Quick, apart from greylock::core so a command line built
+# on core needs no Qt Quick. It is built where Qt Quick is installed.
+find_package(Qt6 6.8 QUIET COMPONENTS Qml Quick)
+if(TARGET Qt6::Quick)
+    add_library(greylock_ui STATIC
+        cpp/include/greylock/ui/LiveQml.h
+        cpp/src/ui/LiveQml.cpp
+    )
+    add_library(greylock::ui ALIAS greylock_ui)
+    target_compile_features(greylock_ui PUBLIC cxx_std_20)
+    target_include_directories(greylock_ui PUBLIC cpp/include)
+    target_link_libraries(greylock_ui PUBLIC greylock::core Qt6::Qml Qt6::Quick)
+endif()
+
 include(cmake/GreylockTranslations.cmake)
 
 option(GREYLOCK_BUILD_TESTS "Build core's tests" ${PROJECT_IS_TOP_LEVEL})
