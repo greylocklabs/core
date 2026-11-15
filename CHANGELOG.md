@@ -3,6 +3,16 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- `greylock::cli` holds the command-line helpers both apps carried: `Paint` and `Palette` for colored
+  output, `UpdateHint` for the line about a newer release, and `Upgrade` for `upgrade` and `downgrade`.
+  Their messages name the app from `greylock::identity`, which gains `command()` and `name()`, and
+  `Upgrade::setInstallCommand()` gives the installer line. `Upgrade` sends a Flatpak to Flathub to update.
+- The tests' `FakeHttpServer` is the apps' fuller one, with per-request handlers.
+
 ## 0.11.1 - 2026-11-12
 
 ### Fixed
