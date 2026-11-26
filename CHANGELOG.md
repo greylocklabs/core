@@ -3,6 +3,13 @@
 What changed in each release of core, for the people working on the apps that use it. Notes collect under Unreleased,
 and `scripts/release.sh` dates them.
 
+## Unreleased
+
+### Added
+
+- An app's Arch PKGBUILD, at `packaging/arch/<app>/PKGBUILD`, is part of its version: `release.sh` sets its
+  `pkgver` and starts `pkgrel` at 1, and `check-version.sh` checks it agrees with the rest.
+
 ## 0.12.0 - 2026-11-14
 
 ### Added

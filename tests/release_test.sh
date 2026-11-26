@@ -16,7 +16,7 @@ fail() {
 }
 
 app="$tmp/demo"
-mkdir -p "$app/core" "$app/packaging/rpm" "$app/packaging/debian" "$app/data"
+mkdir -p "$app/core" "$app/packaging/rpm" "$app/packaging/debian" "$app/packaging/arch/demo" "$app/data"
 ln -s "$tooling" "$app/core/tooling"
 cd "$app"
 cat >CMakeLists.txt <<'EOF'
@@ -36,6 +36,11 @@ Release:        1%{?dist}
 %changelog
 * Mon Oct 12 2026 Demo Maintainer <hello@example.org> - 0.1.0-1
 - New upstream release.
+EOF
+cat >packaging/arch/demo/PKGBUILD <<'EOF'
+pkgname=demo
+pkgver=0.1.0
+pkgrel=3
 EOF
 cat >packaging/debian/control <<'EOF'
 Source: demo
@@ -94,6 +99,9 @@ export GIT_AUTHOR_NAME=Demo GIT_AUTHOR_EMAIL=hello@example.org
 export GIT_COMMITTER_NAME=Demo GIT_COMMITTER_EMAIL=hello@example.org
 
 core/tooling/check-version.sh || fail "check-version.sh rejects the starting versions"
+sed -i 's/^pkgver=0.1.0$/pkgver=0.0.9/' packaging/arch/demo/PKGBUILD
+core/tooling/check-version.sh 2>/dev/null && fail "check-version.sh accepts a PKGBUILD naming another version"
+sed -i 's/^pkgver=0.0.9$/pkgver=0.1.0/' packaging/arch/demo/PKGBUILD
 sed -i 's/^## 0.1.0 - 2026-10-12$/## 0.1.0/' CHANGELOG.md
 if core/tooling/check-version.sh 2>/dev/null; then
     fail "check-version.sh accepts a released app whose CHANGELOG.md lost its dated heading"
@@ -123,6 +131,7 @@ core/tooling/check-version.sh 0.2.0 || fail "the release left the versions disag
 grep -q "^\* .* Demo Maintainer <hello@example.org> - 0.2.0-1$" packaging/rpm/demo.spec ||
     fail "the RPM changelog does not name the control file's maintainer"
 grep -q '<release version="0.2.0"' data/org.example.Demo.metainfo.xml || fail "the metainfo has no 0.2.0"
+grep -qx "pkgrel=1" packaging/arch/demo/PKGBUILD || fail "the release did not start the PKGBUILD's pkgrel again"
 
 # An Android app keeps its version in VERSION, and its commits need a scope.
 android="$tmp/pocket"
