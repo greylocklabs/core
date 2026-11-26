@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Checks that every place naming the version agrees. For a Qt app: CMake, the
-# RPM spec, the Debian changelog, the AppStream metainfo and CHANGELOG.md,
+# RPM spec, the Debian changelog, the Arch PKGBUILD when there is one, the
+# AppStream metainfo and CHANGELOG.md,
 # whose release date the metainfo must also carry. Before the first release,
 # when neither CHANGELOG.md nor the metainfo has one yet, only CMake and the
 # packaging are compared. For an Android app: VERSION and the newest version
@@ -47,6 +48,8 @@ appstream_date="$(sed -n 's/.*<release version="[^"]*" date="\([^"]*\)".*/\1/p' 
 want="${1:-$cmake}"
 status=0
 pairs=("CMakeLists.txt:$cmake" "$app.spec:$spec" "debian/changelog:$debian")
+pkgbuild="$root/packaging/arch/$app/PKGBUILD"
+[ ! -f "$pkgbuild" ] || pairs+=("PKGBUILD:$(sed -n 's/^pkgver=//p' "$pkgbuild" | head -1)")
 # Only an app with no release yet has neither a dated section nor a metainfo release.
 [ -z "$changelog$appstream" ] || pairs+=("metainfo.xml:$appstream" "CHANGELOG.md:$changelog")
 for pair in "${pairs[@]}"; do

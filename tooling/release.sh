@@ -8,7 +8,8 @@
 #   core/tooling/release.sh 0.5.0 [--dry-run]
 #
 # It releases two kinds of app. A Qt app names its version in CMakeLists.txt,
-# the RPM spec, the Debian changelog and the AppStream metainfo. An Android app
+# the RPM spec, the Debian changelog, the AppStream metainfo and, when it has
+# one, the Arch PKGBUILD in packaging/arch/<app>/. An Android app
 # keeps it in a VERSION file, which its Gradle build reads.
 #
 # Notes come from a "## Unreleased" section at the top of CHANGELOG.md, written
@@ -28,6 +29,9 @@ if [ -f CMakeLists.txt ]; then
     spec="packaging/rpm/$app.spec"
     metainfo="data/$app_id.metainfo.xml"
     files=(CHANGELOG.md CMakeLists.txt "$spec" packaging/debian/changelog "$metainfo")
+    pkgbuild="packaging/arch/$app/PKGBUILD"
+    [ -f "$pkgbuild" ] || pkgbuild=""
+    [ -z "$pkgbuild" ] || files+=("$pkgbuild")
 elif [ -f VERSION ] && [ -f settings.gradle.kts ]; then
     kind=android
     app="$(sed -n 's/^rootProject.name *= *"\([^"]*\)".*/\1/p' settings.gradle.kts | head -1)"
@@ -113,9 +117,9 @@ if [ "$dry" = 1 ]; then
     printf '%s\n' "$notes"
     echo
     if [ "$kind" = qt ]; then
-        echo "Would set $next in CMakeLists.txt, the RPM spec, the Debian changelog and the"
-        echo "metainfo, run make check, commit \"$message\", tag v$next and push both"
-        echo "to origin."
+        echo "Would set $next in CMakeLists.txt, the RPM spec, the Debian changelog,"
+        echo "the metainfo${pkgbuild:+ and the PKGBUILD}, run make check, commit \"$message\","
+        echo "tag v$next and push both to origin."
     else
         echo "Would set $next in VERSION, run make check, commit \"$message\", tag v$next"
         echo "and push both to origin."
@@ -158,6 +162,8 @@ stamp_qt() {
         cat packaging/debian/changelog
     } >packaging/debian/changelog.new
     mv packaging/debian/changelog.new packaging/debian/changelog
+    # The release workflow fills in the tarball's checksum once it is built.
+    [ -z "$pkgbuild" ] || sed -i -e "s/^pkgver=$current\$/pkgver=$next/" -e 's/^pkgrel=.*/pkgrel=1/' "$pkgbuild"
 
     # Software centers show each release's first-level notes as a list.
     items="$(printf '%s\n' "$notes" | awk '
