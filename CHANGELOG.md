@@ -10,6 +10,12 @@ and `scripts/release.sh` dates them.
 - An app's Arch PKGBUILD, at `packaging/arch/<app>/PKGBUILD`, is part of its version: `release.sh` sets its
   `pkgver` and starts `pkgrel` at 1, and `check-version.sh` checks it agrees with the rest.
 
+### Changed
+
+- `check-version.sh` fails an app whose PKGBUILD names another version than its release, so `make check`
+  and `release.sh` stop there. Before taking this core, an app with a PKGBUILD sets its `pkgver` to its
+  current version.
+
 ## 0.12.0 - 2026-11-14
 
 ### Added
